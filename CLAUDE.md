@@ -96,15 +96,20 @@ docker compose exec -T web sh -c "cd /app && bun run format"
 
 ### Support de l'IDE (types & autocomplétion)
 
-Le dev tourne en conteneur, mais ton IDE (serveur TypeScript, gopls) s'exécute sur **l'hôte** et a besoin des dépendances **localement** pour résoudre les types. Elles vivent dans `node_modules` (gitignoré) — à (re)peupler **sans installer bun** sur la machine :
+L'IDE (serveur TypeScript, `gopls`) a besoin des dépendances pour résoudre les types. Deux options :
+
+**Recommandé — Dev Container** (`.devcontainer/`) : l'IDE tourne **dans** un conteneur avec Go 1.26 + bun + les outils. Types Go **et** JS résolus sans rien installer sur la machine.
+
+- VS Code : `Ctrl+Shift+P` → **« Dev Containers: Reopen in Container »** (extension *Dev Containers* requise). Le premier lancement build l'image et lance `bun install` + `go mod download`.
+- Lancer l'app depuis le terminal du conteneur : `bun run dev:native` (Turbo lance air + Vite, ports 5173/8080 forwardés). Le front proxifie `/api` vers `localhost:8080` (même conteneur).
+
+**Alternative — IDE sur l'hôte** : peupler `node_modules` (gitignoré) sans installer bun localement, puis recharger le serveur TS. Ne résout pas les types Go (il faudrait Go sur l'hôte).
 
 ```bash
 docker run --rm -v "${PWD}":/w -w /w oven/bun:1 bun install
 ```
 
-- Ne **supprime pas** `node_modules` de l'hôte, sinon l'IDE reperd les types. Après un install, recharge le serveur TS (VS Code : « TypeScript: Restart TS Server »).
-- Le conteneur, lui, utilise son propre `node_modules` (volume anonyme) — les deux sont indépendants.
-- **Go** : `gopls` a besoin du toolchain Go + des modules sur l'hôte. Pour un dev 100 % conteneur, ouvrir le dossier dans un **Dev Container** VS Code fait tourner l'IDE dans le conteneur (types Go et JS résolus sans rien installer localement).
+Ne **supprime pas** `node_modules` de l'hôte, sinon l'IDE reperd les types.
 
 ## URLs (dev)
 
