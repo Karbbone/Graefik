@@ -94,6 +94,18 @@ docker compose exec -T web sh -c "cd /app && bun run format"
 
 > Si un conteneur n'est pas démarré, lance `docker compose up -d` d'abord.
 
+### Support de l'IDE (types & autocomplétion)
+
+Le dev tourne en conteneur, mais ton IDE (serveur TypeScript, gopls) s'exécute sur **l'hôte** et a besoin des dépendances **localement** pour résoudre les types. Elles vivent dans `node_modules` (gitignoré) — à (re)peupler **sans installer bun** sur la machine :
+
+```bash
+docker run --rm -v "${PWD}":/w -w /w oven/bun:1 bun install
+```
+
+- Ne **supprime pas** `node_modules` de l'hôte, sinon l'IDE reperd les types. Après un install, recharge le serveur TS (VS Code : « TypeScript: Restart TS Server »).
+- Le conteneur, lui, utilise son propre `node_modules` (volume anonyme) — les deux sont indépendants.
+- **Go** : `gopls` a besoin du toolchain Go + des modules sur l'hôte. Pour un dev 100 % conteneur, ouvrir le dossier dans un **Dev Container** VS Code fait tourner l'IDE dans le conteneur (types Go et JS résolus sans rien installer localement).
+
 ## URLs (dev)
 
 | Service | URL |
