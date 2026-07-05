@@ -11,7 +11,7 @@ import (
 
 // NewRouter construit l'instance Echo, branche les middlewares et les routes
 // sur les services (ports inbound) fournis par la composition root.
-func NewRouter(corsOrigins []string, tasks port.TaskService) *echo.Echo {
+func NewRouter(corsOrigins []string, cookie CookieConfig, auth port.AuthService, tasks port.TaskService) *echo.Echo {
 	e := echo.New()
 
 	e.Use(middleware.RequestLogger())
@@ -21,11 +21,22 @@ func NewRouter(corsOrigins []string, tasks port.TaskService) *echo.Echo {
 	}))
 
 	api := e.Group("/api")
+
+	// Public.
 	api.GET("/health", Health)
 
-	tasksHandler := NewTaskHandler(tasks)
-	api.GET("/tasks", tasksHandler.List)
-	api.POST("/tasks", tasksHandler.Create)
+	authHandler := NewAuthHandler(auth, cookie)
+	authGroup := api.Group("/auth")
+	authGroup.POST("/login", authHandler.Login)
+	authGroup.POST("/logout", authHandler.Logout)
+	authGroup.GET("/me", authHandler.Me)
+
+	// Protégé par session.
+	protected := api.Group("", RequireAuth(auth, cookie.Name))
+
+	taskHandler := NewTaskHandler(tasks)
+	protected.GET("/tasks", taskHandler.List)
+	protected.POST("/tasks", taskHandler.Create)
 
 	return e
 }

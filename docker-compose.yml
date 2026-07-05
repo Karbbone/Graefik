@@ -11,6 +11,8 @@ services:
       APP_ENV: development
       # Origine autorisee par le CORS de l'API (le front en dev)
       CORS_ORIGINS: http://localhost:5173
+      # Base SQLite persistee sur le volume graefik-data
+      DB_PATH: /data/graefik.db
     ports:
       # Port hôte configurable (defaut 8080) pour eviter les conflits ; interne toujours 8080.
       - "${API_PORT:-8080}:8080"
@@ -18,6 +20,7 @@ services:
       - ./apps/api:/app
       - go-mod-cache:/go/pkg/mod
       - go-build-cache:/root/.cache/go-build
+      - graefik-data:/data
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/health"]
       interval: 10s
@@ -49,3 +52,4 @@ services:
 volumes:
   go-mod-cache:
   go-build-cache:
+  graefik-data:

@@ -1,39 +1,80 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.88);
-  background-color: #16161a;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* Thème clair Graefik — primary = bleu Go (#00ADD8) */
+@plugin "daisyui/theme" {
+  name: "graefik-light";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: #ffffff;
+  --color-base-200: #f5f7f9;
+  --color-base-300: #e6eaee;
+  --color-base-content: #1b2430;
+
+  --color-primary: #00add8;
+  --color-primary-content: #ffffff;
+  --color-secondary: #007d9c;
+  --color-secondary-content: #ffffff;
+  --color-accent: #00b39f;
+  --color-accent-content: #ffffff;
+  --color-neutral: #1b2430;
+  --color-neutral-content: #f5f7f9;
+
+  --color-info: #0ea5e9;
+  --color-info-content: #ffffff;
+  --color-success: #16a34a;
+  --color-success-content: #ffffff;
+  --color-warning: #d97706;
+  --color-warning-content: #ffffff;
+  --color-error: #dc2626;
+  --color-error-content: #ffffff;
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --border: 1px;
 }
 
-* {
-  box-sizing: border-box;
+/* Thème sombre Graefik — primary = bleu Go (#00ADD8) */
+@plugin "daisyui/theme" {
+  name: "graefik-dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #15181e;
+  --color-base-200: #1b1f27;
+  --color-base-300: #232833;
+  --color-base-content: #e7ebf0;
+
+  --color-primary: #00add8;
+  --color-primary-content: #04141b;
+  --color-secondary: #29a9c9;
+  --color-secondary-content: #04141b;
+  --color-accent: #21c3ad;
+  --color-accent-content: #04141b;
+  --color-neutral: #232833;
+  --color-neutral-content: #e7ebf0;
+
+  --color-info: #38bdf8;
+  --color-info-content: #04141b;
+  --color-success: #22c55e;
+  --color-success-content: #052e16;
+  --color-warning: #f59e0b;
+  --color-warning-content: #1a1205;
+  --color-error: #ef4444;
+  --color-error-content: #1a0505;
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --border: 1px;
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  place-items: center;
-  justify-content: center;
-}
-
+html,
+body,
 #root {
-  width: 100%;
-  max-width: 720px;
-  padding: 2rem;
-  margin: 0 auto;
-}
-
-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 0.1rem 0.35rem;
-  border-radius: 4px;
-  font-size: 0.9em;
+  height: 100%;
 }

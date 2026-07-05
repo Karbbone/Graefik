@@ -17,3 +17,22 @@ type TaskService interface {
 	Create(ctx context.Context, title string) (*domain.Task, error)
 	List(ctx context.Context) ([]*domain.Task, error)
 }
+
+// BootstrapResult décrit le résultat de la création éventuelle de l'admin initial.
+type BootstrapResult struct {
+	Created           bool
+	Username          string
+	GeneratedPassword string // renseigné uniquement si Created == true
+}
+
+// AuthService est un port inbound : les cas d'usage d'authentification.
+type AuthService interface {
+	// EnsureAdmin crée l'utilisateur admin initial s'il n'existe aucun compte.
+	EnsureAdmin(ctx context.Context) (BootstrapResult, error)
+	// Login vérifie les identifiants et ouvre une session.
+	Login(ctx context.Context, username, password string) (*domain.Session, error)
+	// Logout invalide la session correspondant au token.
+	Logout(ctx context.Context, token string) error
+	// Authenticate valide un token de session et renvoie l'utilisateur (prolonge la session).
+	Authenticate(ctx context.Context, token string) (*domain.User, error)
+}

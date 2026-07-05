@@ -79,6 +79,25 @@ docker compose exec -T api sh -c "cd /app && go run github.com/vektra/mockery/v3
 
 Config dans `.mockery.yaml` (ajoute-y toute nouvelle interface à mocker).
 
+## Authentification
+
+Implémentée en respectant l'hexagonal :
+
+- **Domaine** : `domain/user.go` (`User`), `domain/session.go` (`Session`, `ErrInvalidCredentials`, `ErrSessionInvalid`).
+- **Ports outbound** (`core/port/outbound.go`) : `UserRepository`, `SessionRepository`, `PasswordHasher`.
+- **Port inbound** (`core/port/inbound.go`) : `AuthService` (`EnsureAdmin`, `Login`, `Logout`, `Authenticate`).
+- **Use case** : `core/service/auth_service.go` (dépendances injectées via `AuthConfig` : horloge, générateurs d'ID/token/mot de passe, TTL).
+- **Adaptateurs outbound** : `adapter/outbound/sqlite/` (`db.go` + migrations, `user_repository.go`, `session_repository.go`, driver pur-Go `modernc.org/sqlite`) et `adapter/outbound/security/hasher.go` (bcrypt).
+- **Adaptateur inbound** : `adapter/inbound/http/auth_handler.go`, `middleware.go` (`RequireAuth`), `cookie.go`, `login_limiter.go` (verrou anti-brute-force en mémoire, 5 échecs → 1 min).
+- **Génération de secrets** : `platform/secret.go` (`GenerateToken`, `GeneratePassword`).
+- **Bootstrap** : `cmd/api/main.go` appelle `EnsureAdmin` au démarrage et affiche le mot de passe généré dans les logs (une fois).
+
+**Config** (env, voir `platform/config.go`) : `DB_PATH` (défaut `/data/graefik.db`), `COOKIE_NAME`, `COOKIE_SECURE` (`auto`/`true`/`false`), `SESSION_TTL`.
+
+**Cookie** : `graefik_session`, HttpOnly, SameSite=Lax, Secure auto, 7 j glissants.
+
+> Les mocks (`internal/mocks/port`) couvrent aussi `UserRepository`, `SessionRepository`, `PasswordHasher`, `AuthService` — régénère-les après toute modif d'interface (voir plus haut).
+
 ## Conventions Go
 
 - Handlers Echo v5 : signature `func(c *echo.Context) error` (pointeur, ≠ v4).

@@ -84,6 +84,18 @@ docker compose exec -T web sh -c "cd /app && bun run check-types"
 
 ⚠️ **Ports** : le port hôte de l'API est configurable via `.env` (`API_PORT`, `WEB_PORT`). Sur cette machine, `8080` est déjà pris par un autre projet, donc `.env` mappe l'API sur **8081** (le port *interne* du conteneur reste 8080, le proxy Vite est inchangé). Ne pas committer `.env` (il est gitignoré) ; `.env.example` documente les variables.
 
+## Authentification (self-hosted)
+
+Modèle « à la Jenkins » : au **premier lancement**, si aucun compte n'existe, l'API crée l'admin **`graefik`** avec un mot de passe **généré aléatoirement** et l'affiche **une seule fois dans les logs du conteneur** (encadré). Il faut donc lire les logs pour récupérer le mot de passe initial :
+
+```bash
+docker compose logs api | grep -A6 "administrateur initial"
+```
+
+- Session par **cookie HttpOnly** (`graefik_session`), stockée en **SQLite** (persistée sur le volume `graefik-data`), expiration **7 jours glissants**, flag `Secure` **auto** (HTTPS/`X-Forwarded-Proto`, override `COOKIE_SECURE`).
+- Endpoints : `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`. Les autres routes (`/api/tasks`…) sont **protégées** ; `/api/health` reste public.
+- Détails backend : [apps/api/CLAUDE.md](apps/api/CLAUDE.md) · flux frontend : [apps/web/CLAUDE.md](apps/web/CLAUDE.md).
+
 ## Turborepo
 
 `turbo.json` définit les tâches `dev`, `build`, `lint`, `check-types`, `test`, `clean`. Chaque app expose ces scripts dans son `package.json`. Depuis la racine (dans un environnement qui aurait bun) : `bun run build`, `bun run lint`, etc. En pratique on passe par Docker (voir ci-dessus).

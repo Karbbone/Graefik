@@ -108,4 +108,12 @@ export default tseslint.config(
       ],
     },
   },
+
+  // Les barrels (index.ts) réexportent composants + hooks/types : hors périmètre du fast-refresh.
+  {
+    files: ['**/index.ts'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 )

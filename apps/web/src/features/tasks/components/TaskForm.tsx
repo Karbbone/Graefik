@@ -16,14 +16,17 @@ export function TaskForm({ onAdd }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="task-form">
+    <form onSubmit={handleSubmit} className="join w-full">
       <input
+        className="input input-bordered join-item flex-1"
         aria-label="Titre de la tâche"
         placeholder="Nouvelle tâche…"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
-      <button type="submit">Ajouter</button>
+      <button type="submit" className="btn btn-primary join-item">
+        Ajouter
+      </button>
     </form>
   )
 }

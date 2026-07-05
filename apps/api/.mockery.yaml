@@ -8,3 +8,7 @@ packages:
     interfaces:
       TaskRepository:
       TaskService:
+      UserRepository:
+      SessionRepository:
+      PasswordHasher:
+      AuthService:

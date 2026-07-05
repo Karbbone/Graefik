@@ -4,35 +4,28 @@ export function HealthCard() {
   const { health, error } = useHealth()
 
   return (
-    <section className="card">
-      <h2>Statut de l&apos;API</h2>
+    <div className="card bg-base-100 shadow">
+      <div className="card-body">
+        <h2 className="card-title">Statut de l&apos;API</h2>
 
-      {error && (
-        <p className="status status--error">
-          Impossible de joindre l&apos;API : {error}
-        </p>
-      )}
+        {error && (
+          <div role="alert" className="alert alert-error text-sm">
+            Impossible de joindre l&apos;API : {error}
+          </div>
+        )}
 
-      {!error && !health && (
-        <p className="status">Connexion &agrave; l&apos;API&hellip;</p>
-      )}
+        {!error && !health && (
+          <span className="loading loading-dots loading-md" />
+        )}
 
-      {health && (
-        <ul className="kv">
-          <li>
-            <span>Statut</span>
-            <strong className="badge badge--ok">{health.status}</strong>
-          </li>
-          <li>
-            <span>Service</span>
-            <strong>{health.service}</strong>
-          </li>
-          <li>
-            <span>Version Go</span>
-            <strong>{health.go}</strong>
-          </li>
-        </ul>
-      )}
-    </section>
+        {health && (
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="badge badge-success">{health.status}</span>
+            <span className="text-sm opacity-70">{health.service}</span>
+            <span className="text-sm opacity-70">{health.go}</span>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

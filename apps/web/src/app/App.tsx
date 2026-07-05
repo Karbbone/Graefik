@@ -1,24 +1,27 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { AuthProvider } from '@/features/auth'
+import { ThemeProvider } from '@/shared/theme/ThemeProvider'
 import { HomePage } from '@/pages/HomePage'
-import './App.css'
+import { LoginPage } from '@/pages/LoginPage'
+import { AppLayout } from './AppLayout'
+import { ProtectedRoute } from './routes/ProtectedRoute'
 
 export function App() {
   return (
-    <main className="app">
-      <header className="hero">
-        <h1>Graefik</h1>
-        <p className="subtitle">
-          Monorepo <strong>Go</strong> (Echo, hexagonal) +{' '}
-          <strong>React</strong> (Vite, feature-based)
-        </p>
-      </header>
-
-      <HomePage />
-
-      <footer className="footer">
-        Modifie une <code>feature</code> dans <code>src/features</code> ou un{' '}
-        <code>service</code> dans <code>apps/api/internal/core</code> &mdash; le
-        hot reload s&apos;occupe du reste.
-      </footer>
-    </main>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<HomePage />} />
+              </Route>
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }

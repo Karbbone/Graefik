@@ -73,6 +73,20 @@ docker compose exec -T web sh -c "cd /app && bun run lint"          # eslint + b
 docker compose exec -T web sh -c "cd /app && bun run check-types"   # tsc
 ```
 
+## Authentification & routing
+
+- **Routing** : `react-router-dom` v7. Configuration dans `app/App.tsx` : `/login` publique, tout le reste sous `ProtectedRoute` (`app/routes/`) + `AppLayout` (`app/`, navbar avec toggle de thème + déconnexion).
+- **État d'auth** : `features/auth` expose `AuthProvider` + `useAuth` (contexte). `AuthProvider` interroge `GET /api/auth/me` au montage pour hydrater la session. `LoginForm` appelle `useAuth().login`.
+- **Contexte séparé du provider** : `context/auth.ts` (contexte + hook `useAuth`) et `context/AuthProvider.tsx` (composant) — évite les warnings react-refresh.
+- La connexion se fait par **cookie** (posé par l'API, transmis via le proxy Vite) — pas de token en localStorage.
+
+## Thème (DaisyUI)
+
+- **Tailwind v4** (`@tailwindcss/vite`) + **DaisyUI v5**, configurés en CSS dans `src/index.css`.
+- Deux thèmes maison : **`graefik-light`** / **`graefik-dark`** (primary = bleu Go `#00ADD8`), défaut = préférence système.
+- Bascule : `shared/theme/` (`theme.ts` = contexte + `useTheme`, `ThemeProvider.tsx`) + `shared/ui/ThemeToggle.tsx`. Le thème est persisté en `localStorage` et appliqué via `data-theme` sur `<html>`. `ThemeProvider` enveloppe l'app dans `app/App.tsx`.
+- Utilise les classes DaisyUI (`btn`, `card`, `input`, `badge`, `alert`, `navbar`, `menu`, `loading`…) plutôt que du CSS custom.
+
 ## Conventions
 
 - Composants fonctionnels + hooks. Un hook par préoccupation (`useTasks`, `useHealth`).
