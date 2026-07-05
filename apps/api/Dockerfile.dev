@@ -1,0 +1,16 @@
+# syntax=docker/dockerfile:1
+FROM golang:1.26-alpine
+
+# git : necessaire au telechargement des modules Go.
+# ca-certificates : verification TLS des proxys de modules.
+RUN apk add --no-cache git ca-certificates
+
+# Air : rechargement a chaud (hot reload) pour Go.
+RUN go install github.com/air-verse/air@v1.65.2
+
+WORKDIR /app
+
+# Le code source est monte via bind mount par docker-compose.
+# "go mod tidy && air" est lance par la commande du compose.
+EXPOSE 8080
+CMD ["air", "-c", ".air.toml"]

@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+**/.turbo
+**/tmp
+**/bin
+.git
+.gitignore
+**/*.log
+**/.env
+**/.env.local
+README.md

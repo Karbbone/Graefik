@@ -1,0 +1,14 @@
+{
+  "name": "@graefik/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "air -c .air.toml",
+    "build": "go build -o ./bin/server .",
+    "start": "./bin/server",
+    "lint": "go vet ./...",
+    "test": "go test ./...",
+    "check-types": "go build -o /dev/null ./...",
+    "clean": "rm -rf tmp bin"
+  }
+}

@@ -1,0 +1,51 @@
+services:
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.dev
+    container_name: graefik-api
+    working_dir: /app
+    command: sh -c "go mod tidy && air -c .air.toml"
+    environment:
+      PORT: "8080"
+      APP_ENV: development
+      # Origine autorisee par le CORS de l'API (le front en dev)
+      CORS_ORIGINS: http://localhost:5173
+    ports:
+      # Port hôte configurable (defaut 8080) pour eviter les conflits ; interne toujours 8080.
+      - "${API_PORT:-8080}:8080"
+    volumes:
+      - ./apps/api:/app
+      - go-mod-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile.dev
+    container_name: graefik-web
+    working_dir: /app
+    command: sh -c "bun install && bun run dev --host"
+    environment:
+      # En conteneur, le proxy Vite tape l'API via le hostname du service Docker
+      VITE_PROXY_TARGET: http://api:8080
+      # Polling necessaire pour le HMR sur bind mount Windows/Docker
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "${WEB_PORT:-5173}:5173"
+    volumes:
+      - ./apps/web:/app
+      # Volume anonyme : garde le node_modules du conteneur, non ecrase par le bind mount
+      - /app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  go-mod-cache:
+  go-build-cache:
