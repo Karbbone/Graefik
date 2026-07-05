@@ -90,7 +90,9 @@ Implémentée en respectant l'hexagonal :
 - **Adaptateurs outbound** : `adapter/outbound/sqlite/` (`db.go` + migrations, `user_repository.go`, `session_repository.go`, driver pur-Go `modernc.org/sqlite`) et `adapter/outbound/security/hasher.go` (bcrypt).
 - **Adaptateur inbound** : `adapter/inbound/http/auth_handler.go`, `middleware.go` (`RequireAuth`), `cookie.go`, `login_limiter.go` (verrou anti-brute-force en mémoire, 5 échecs → 1 min).
 - **Génération de secrets** : `platform/secret.go` (`GenerateToken`, `GeneratePassword`).
-- **Bootstrap** : `cmd/api/main.go` appelle `EnsureAdmin` au démarrage et affiche le mot de passe généré dans les logs (une fois).
+- **Bootstrap** : `cmd/api/main.go` appelle `EnsureAdmin` au démarrage.
+  - **Prod** : crée l'admin avec un mot de passe aléatoire, affiché **une fois**.
+  - **Dev** (`DevMode`, via `APP_ENV=development`) : réinitialise le mot de passe admin à `DEV_ADMIN_PASSWORD` (défaut `graefik`) et le **réaffiche à chaque démarrage** (`UpdatePassword`). `EnsureAdmin` renvoie `GeneratedPassword` non vide dès qu'il y a un mot de passe à afficher.
 
 **Config** (env, voir `platform/config.go`) : `DB_PATH` (défaut `/data/graefik.db`), `COOKIE_NAME`, `COOKIE_SECURE` (`auto`/`true`/`false`), `SESSION_TTL`.
 

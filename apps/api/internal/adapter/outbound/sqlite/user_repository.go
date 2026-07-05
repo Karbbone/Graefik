@@ -41,6 +41,13 @@ func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*
 	return r.queryUser(ctx, `SELECT id, username, password_hash, created_at FROM users WHERE username = ?`, username)
 }
 
+// UpdatePassword remplace le hash du mot de passe d'un utilisateur.
+func (r *UserRepository) UpdatePassword(ctx context.Context, id, passwordHash string) error {
+	_, err := r.db.ExecContext(ctx,
+		`UPDATE users SET password_hash = ? WHERE id = ?`, passwordHash, id)
+	return err
+}
+
 // Count retourne le nombre d'utilisateurs.
 func (r *UserRepository) Count(ctx context.Context) (int, error) {
 	var n int

@@ -51,6 +51,8 @@ func run() error {
 		NewPassword:   platform.GeneratePassword,
 		TTL:           cfg.SessionTTL,
 		AdminUsername: "graefik",
+		DevMode:       cfg.DevMode,
+		DevPassword:   cfg.DevPassword,
 	})
 	taskService := service.NewTaskService(taskRepo, time.Now, uuid.NewString)
 
@@ -59,8 +61,10 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("initialisation de l'admin : %w", err)
 	}
-	if res.Created {
-		printAdminBanner(res.Username, res.GeneratedPassword)
+	// GeneratedPassword est renseigné à la création (prod : une fois) et à chaque
+	// démarrage en dev (mot de passe réinitialisé/réaffiché).
+	if res.GeneratedPassword != "" {
+		printAdminBanner(res.Username, res.GeneratedPassword, res.Created)
 	}
 
 	// --- Adaptateur inbound (pilotant) ---
@@ -75,16 +79,26 @@ func run() error {
 	return router.Start(":" + cfg.Port)
 }
 
-// printAdminBanner affiche le compte admin initial dans les logs (une seule fois).
-func printAdminBanner(username, password string) {
+// printAdminBanner affiche le compte admin dans les logs.
+// created distingue la création initiale (prod, une fois) de la réinitialisation
+// dev (réaffichée à chaque démarrage).
+func printAdminBanner(username, password string, created bool) {
 	const line = "============================================================"
 	fmt.Println("\n" + line)
-	fmt.Println("  Graefik — compte administrateur initial")
+	if created {
+		fmt.Println("  Graefik — compte administrateur initial")
+	} else {
+		fmt.Println("  Graefik — compte administrateur (mode dev)")
+	}
 	fmt.Println()
 	fmt.Printf("  Identifiant  : %s\n", username)
 	fmt.Printf("  Mot de passe : %s\n", password)
 	fmt.Println()
-	fmt.Println("  Ce mot de passe n'est affiché qu'UNE seule fois.")
-	fmt.Println("  Notez-le et changez-le dès que possible.")
+	if created {
+		fmt.Println("  Ce mot de passe n'est affiché qu'UNE seule fois.")
+		fmt.Println("  Notez-le et changez-le dès que possible.")
+	} else {
+		fmt.Println("  Mode dev : mot de passe réinitialisé et réaffiché à chaque démarrage.")
+	}
 	fmt.Printf("%s\n\n", line)
 }

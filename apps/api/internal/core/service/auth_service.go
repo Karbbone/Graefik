@@ -14,9 +14,14 @@ type AuthConfig struct {
 	Now           func() time.Time
 	NewID         func() string          // identifiants d'utilisateur
 	NewToken      func() (string, error) // tokens de session (crypto-aléatoires)
-	NewPassword   func() (string, error) // mot de passe admin généré
+	NewPassword   func() (string, error) // mot de passe admin généré (prod)
 	TTL           time.Duration          // durée de vie d'une session
 	AdminUsername string
+	// DevMode : en dev, le mot de passe admin est fixé à DevPassword et
+	// réaffiché à chaque démarrage. En prod, un mot de passe aléatoire est
+	// généré une seule fois à la création.
+	DevMode     bool
+	DevPassword string
 }
 
 // AuthService implémente le port inbound port.AuthService.
@@ -34,20 +39,41 @@ func NewAuthService(users port.UserRepository, sessions port.SessionRepository, 
 	return &AuthService{users: users, sessions: sessions, hasher: hasher, cfg: cfg}
 }
 
-// EnsureAdmin crée l'admin initial si aucun compte n'existe.
+// EnsureAdmin garantit l'existence de l'admin.
+//
+//   - Aucun compte : création. En dev le mot de passe vaut DevPassword, en prod
+//     il est généré aléatoirement.
+//   - Compte existant en dev : le mot de passe est réinitialisé à DevPassword
+//     (pour pouvoir le réafficher à chaque démarrage).
+//   - Compte existant en prod : aucune action.
+//
+// GeneratedPassword n'est renseigné dans le résultat que lorsqu'il y a un mot de
+// passe à afficher (création, ou réinitialisation dev).
 func (s *AuthService) EnsureAdmin(ctx context.Context) (port.BootstrapResult, error) {
 	count, err := s.users.Count(ctx)
 	if err != nil {
 		return port.BootstrapResult{}, err
 	}
-	if count > 0 {
-		return port.BootstrapResult{Created: false}, nil
+
+	if count == 0 {
+		return s.createAdmin(ctx)
 	}
 
-	password, err := s.cfg.NewPassword()
-	if err != nil {
-		return port.BootstrapResult{}, err
+	if !s.cfg.DevMode {
+		return port.BootstrapResult{Created: false}, nil
 	}
+	return s.resetAdminPassword(ctx)
+}
+
+func (s *AuthService) createAdmin(ctx context.Context) (port.BootstrapResult, error) {
+	password := s.cfg.DevPassword
+	if !s.cfg.DevMode {
+		var err error
+		if password, err = s.cfg.NewPassword(); err != nil {
+			return port.BootstrapResult{}, err
+		}
+	}
+
 	hash, err := s.hasher.Hash(password)
 	if err != nil {
 		return port.BootstrapResult{}, err
@@ -67,6 +93,30 @@ func (s *AuthService) EnsureAdmin(ctx context.Context) (port.BootstrapResult, er
 		Created:           true,
 		Username:          user.Username,
 		GeneratedPassword: password,
+	}, nil
+}
+
+func (s *AuthService) resetAdminPassword(ctx context.Context) (port.BootstrapResult, error) {
+	user, err := s.users.FindByUsername(ctx, s.cfg.AdminUsername)
+	if err != nil {
+		if errors.Is(err, domain.ErrUserNotFound) {
+			return port.BootstrapResult{Created: false}, nil
+		}
+		return port.BootstrapResult{}, err
+	}
+
+	hash, err := s.hasher.Hash(s.cfg.DevPassword)
+	if err != nil {
+		return port.BootstrapResult{}, err
+	}
+	if err := s.users.UpdatePassword(ctx, user.ID, hash); err != nil {
+		return port.BootstrapResult{}, err
+	}
+
+	return port.BootstrapResult{
+		Created:           false,
+		Username:          user.Username,
+		GeneratedPassword: s.cfg.DevPassword,
 	}, nil
 }
 

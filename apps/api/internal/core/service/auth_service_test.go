@@ -59,6 +59,51 @@ func TestAuthService_EnsureAdmin_IgnoreSiExiste(t *testing.T) {
 	assert.Empty(t, res.GeneratedPassword)
 }
 
+func devCfg() service.AuthConfig {
+	cfg := authCfg()
+	cfg.DevMode = true
+	cfg.DevPassword = "dev-pass"
+	return cfg
+}
+
+func TestAuthService_EnsureAdmin_DevCreation(t *testing.T) {
+	users := portmocks.NewMockUserRepository(t)
+	hasher := portmocks.NewMockPasswordHasher(t)
+
+	users.EXPECT().Count(mock.Anything).Return(0, nil).Once()
+	hasher.EXPECT().Hash("dev-pass").Return("hashed", nil).Once()
+	users.EXPECT().Create(mock.Anything, mock.MatchedBy(func(u *domain.User) bool {
+		return u.Username == "graefik" && u.PasswordHash == "hashed"
+	})).Return(nil).Once()
+
+	svc := service.NewAuthService(users, portmocks.NewMockSessionRepository(t), hasher, devCfg())
+
+	res, err := svc.EnsureAdmin(context.Background())
+
+	require.NoError(t, err)
+	assert.True(t, res.Created)
+	assert.Equal(t, "dev-pass", res.GeneratedPassword)
+}
+
+func TestAuthService_EnsureAdmin_DevReinitialise(t *testing.T) {
+	users := portmocks.NewMockUserRepository(t)
+	hasher := portmocks.NewMockPasswordHasher(t)
+
+	existing := &domain.User{ID: "user-1", Username: "graefik", PasswordHash: "old"}
+	users.EXPECT().Count(mock.Anything).Return(1, nil).Once()
+	users.EXPECT().FindByUsername(mock.Anything, "graefik").Return(existing, nil).Once()
+	hasher.EXPECT().Hash("dev-pass").Return("newhash", nil).Once()
+	users.EXPECT().UpdatePassword(mock.Anything, "user-1", "newhash").Return(nil).Once()
+
+	svc := service.NewAuthService(users, portmocks.NewMockSessionRepository(t), hasher, devCfg())
+
+	res, err := svc.EnsureAdmin(context.Background())
+
+	require.NoError(t, err)
+	assert.False(t, res.Created)
+	assert.Equal(t, "dev-pass", res.GeneratedPassword)
+}
+
 func TestAuthService_Login_OK(t *testing.T) {
 	users := portmocks.NewMockUserRepository(t)
 	sessions := portmocks.NewMockSessionRepository(t)

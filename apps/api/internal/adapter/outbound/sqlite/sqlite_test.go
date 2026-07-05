@@ -47,6 +47,12 @@ func TestUserRepository(t *testing.T) {
 	n, err = repo.Count(ctx)
 	require.NoError(t, err)
 	assert.Equal(t, 1, n)
+
+	// Mise à jour du mot de passe.
+	require.NoError(t, repo.UpdatePassword(ctx, "1", "newhash"))
+	updated, err := repo.FindByID(ctx, "1")
+	require.NoError(t, err)
+	assert.Equal(t, "newhash", updated.PasswordHash)
 }
 
 func TestSessionRepository(t *testing.T) {

@@ -17,18 +17,25 @@ type Config struct {
 	CookieName   string
 	CookieSecure string // "auto" | "true" | "false"
 	SessionTTL   time.Duration
+	// DevMode : vrai si APP_ENV == "development". En dev, le mot de passe admin
+	// est fixé à DevPassword et réaffiché dans les logs à chaque démarrage.
+	DevMode     bool
+	DevPassword string
 }
 
 // LoadConfig lit la configuration depuis les variables d'environnement.
 func LoadConfig() Config {
+	env := os.Getenv("APP_ENV")
 	return Config{
 		Port:         getenv("PORT", "8080"),
-		Env:          os.Getenv("APP_ENV"),
+		Env:          env,
 		CORSOrigins:  parseOrigins(os.Getenv("CORS_ORIGINS")),
 		DBPath:       getenv("DB_PATH", "/data/graefik.db"),
 		CookieName:   getenv("COOKIE_NAME", "graefik_session"),
 		CookieSecure: getenv("COOKIE_SECURE", "auto"),
 		SessionTTL:   getduration("SESSION_TTL", 7*24*time.Hour),
+		DevMode:      env == "development",
+		DevPassword:  getenv("DEV_ADMIN_PASSWORD", "graefik"),
 	}
 }
 

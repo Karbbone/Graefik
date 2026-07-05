@@ -105,10 +105,13 @@ docker compose exec -T web sh -c "cd /app && bun run format"
 
 ## Authentification (self-hosted)
 
-Modèle « à la Jenkins » : au **premier lancement**, si aucun compte n'existe, l'API crée l'admin **`graefik`** avec un mot de passe **généré aléatoirement** et l'affiche **une seule fois dans les logs du conteneur** (encadré). Il faut donc lire les logs pour récupérer le mot de passe initial :
+Modèle « à la Jenkins » — comportement différent selon l'environnement :
+
+- **Prod** (`APP_ENV` ≠ `development`) : au **premier lancement**, création de l'admin **`graefik`** avec un mot de passe **aléatoire**, affiché **une seule fois** dans les logs.
+- **Dev** (`APP_ENV=development`, cas du `docker compose`) : le mot de passe admin est **fixé** (`DEV_ADMIN_PASSWORD`, défaut `graefik`), **réinitialisé et réaffiché à chaque démarrage** — pratique pour se reconnecter sans fouiller.
 
 ```bash
-docker compose logs api | grep -A6 "administrateur initial"
+docker compose logs api | grep -A6 "administrateur"
 ```
 
 - Session par **cookie HttpOnly** (`graefik_session`), stockée en **SQLite** (persistée sur le volume `graefik-data`), expiration **7 jours glissants**, flag `Secure` **auto** (HTTPS/`X-Forwarded-Proto`, override `COOKIE_SECURE`).
