@@ -9,4 +9,6 @@ packages:
       UserRepository:
       SessionRepository:
       PasswordHasher:
-      AuthService:
+      LoginUseCase:
+      LogoutUseCase:
+      AuthenticateUseCase:

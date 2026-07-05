@@ -11,17 +11,24 @@ import (
 	"github.com/Karbbone/Graefik/apps/api/internal/core/port"
 )
 
+// AuthUseCases regroupe les cas d'usage d'authentification consommés par l'adaptateur HTTP.
+type AuthUseCases struct {
+	Login        port.LoginUseCase
+	Logout       port.LogoutUseCase
+	Authenticate port.AuthenticateUseCase
+}
+
 // AuthHandler expose les endpoints d'authentification.
 type AuthHandler struct {
-	auth    port.AuthService
+	uc      AuthUseCases
 	cookie  CookieConfig
 	limiter *loginLimiter
 }
 
 // NewAuthHandler construit le handler (verrou anti-brute-force : 5 échecs -> 1 min).
-func NewAuthHandler(auth port.AuthService, cookie CookieConfig) *AuthHandler {
+func NewAuthHandler(uc AuthUseCases, cookie CookieConfig) *AuthHandler {
 	return &AuthHandler{
-		auth:    auth,
+		uc:      uc,
 		cookie:  cookie,
 		limiter: newLoginLimiter(5, time.Minute, time.Now),
 	}
@@ -48,7 +55,7 @@ func (h *AuthHandler) Login(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "corps de requête invalide")
 	}
 
-	session, err := h.auth.Login(c.Request().Context(), req.Username, req.Password)
+	session, err := h.uc.Login.Execute(c.Request().Context(), req.Username, req.Password)
 	if err != nil {
 		if errors.Is(err, domain.ErrInvalidCredentials) {
 			h.limiter.recordFailure(ip)
@@ -67,7 +74,7 @@ func (h *AuthHandler) Login(c *echo.Context) error {
 // Logout — POST /api/auth/logout
 func (h *AuthHandler) Logout(c *echo.Context) error {
 	if cookie, err := c.Request().Cookie(h.cookie.Name); err == nil {
-		_ = h.auth.Logout(c.Request().Context(), cookie.Value)
+		_ = h.uc.Logout.Execute(c.Request().Context(), cookie.Value)
 	}
 	secure := determineSecure(c, h.cookie.Secure)
 	c.SetCookie(clearSessionCookie(h.cookie.Name, secure))
@@ -80,7 +87,7 @@ func (h *AuthHandler) Me(c *echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "non authentifié")
 	}
-	user, err := h.auth.Authenticate(c.Request().Context(), cookie.Value)
+	user, err := h.uc.Authenticate.Execute(c.Request().Context(), cookie.Value)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "session invalide")
 	}

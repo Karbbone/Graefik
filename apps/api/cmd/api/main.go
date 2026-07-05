@@ -14,7 +14,7 @@ import (
 	adapterhttp "github.com/Karbbone/Graefik/apps/api/internal/adapter/inbound/http"
 	"github.com/Karbbone/Graefik/apps/api/internal/adapter/outbound/security"
 	"github.com/Karbbone/Graefik/apps/api/internal/adapter/outbound/sqlite"
-	"github.com/Karbbone/Graefik/apps/api/internal/core/service"
+	"github.com/Karbbone/Graefik/apps/api/internal/core/usecase"
 	"github.com/Karbbone/Graefik/apps/api/internal/platform"
 )
 
@@ -41,20 +41,23 @@ func run() error {
 	sessionRepo := sqlite.NewSessionRepository(db)
 	hasher := security.NewBcryptHasher()
 
-	// --- Use cases (cœur) ---
-	authService := service.NewAuthService(userRepo, sessionRepo, hasher, service.AuthConfig{
+	// --- Use cases (cœur), un par opération ---
+	loginUC := usecase.NewLogin(userRepo, sessionRepo, hasher, time.Now, platform.GenerateToken, cfg.SessionTTL)
+	logoutUC := usecase.NewLogout(sessionRepo)
+	authenticateUC := usecase.NewAuthenticate(userRepo, sessionRepo, time.Now, cfg.SessionTTL)
+	ensureAdminUC := usecase.NewEnsureAdmin(usecase.EnsureAdminConfig{
+		Users:         userRepo,
+		Hasher:        hasher,
 		Now:           time.Now,
 		NewID:         uuid.NewString,
-		NewToken:      platform.GenerateToken,
 		NewPassword:   platform.GeneratePassword,
-		TTL:           cfg.SessionTTL,
 		AdminUsername: "graefik",
 		DevMode:       cfg.DevMode,
 		DevPassword:   cfg.DevPassword,
 	})
 
-	// --- Bootstrap : admin initial (mot de passe affiché une fois dans les logs) ---
-	res, err := authService.EnsureAdmin(context.Background())
+	// --- Bootstrap : admin (mot de passe affiché dans les logs) ---
+	res, err := ensureAdminUC.Execute(context.Background())
 	if err != nil {
 		return fmt.Errorf("initialisation de l'admin : %w", err)
 	}
@@ -68,7 +71,11 @@ func run() error {
 	router := adapterhttp.NewRouter(
 		cfg.CORSOrigins,
 		adapterhttp.CookieConfig{Name: cfg.CookieName, Secure: cfg.CookieSecure, TTL: cfg.SessionTTL},
-		authService,
+		adapterhttp.AuthUseCases{
+			Login:        loginUC,
+			Logout:       logoutUC,
+			Authenticate: authenticateUC,
+		},
 	)
 
 	slog.Info("démarrage de l'API Graefik", "port", cfg.Port, "env", cfg.Env)
