@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "air -c .air.toml",
-    "build": "go build -o ./bin/server .",
+    "build": "go build -o ./bin/server ./cmd/api",
     "start": "./bin/server",
     "lint": "go vet ./...",
     "test": "go test ./...",
     "check-types": "go build -o /dev/null ./...",
+    "generate": "go run github.com/vektra/mockery/v3@v3.7.1",
     "clean": "rm -rf tmp bin"
   }
 }

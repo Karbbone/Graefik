@@ -1,0 +1,10 @@
+template: testify
+dir: "internal/mocks/port"
+pkgname: "portmocks"
+filename: "mock_{{.InterfaceName}}.go"
+structname: "Mock{{.InterfaceName}}"
+packages:
+  github.com/Karbbone/Graefik/apps/api/internal/core/port:
+    interfaces:
+      TaskRepository:
+      TaskService:

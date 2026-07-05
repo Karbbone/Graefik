@@ -38,7 +38,7 @@
   color: #ff6b6b;
 }
 
-.health {
+.kv {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -46,7 +46,7 @@
   gap: 0.5rem;
 }
 
-.health li {
+.kv li {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -54,11 +54,11 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.health li:last-child {
+.kv li:last-child {
   border-bottom: none;
 }
 
-.health span {
+.kv span {
   color: rgba(255, 255, 255, 0.55);
 }
 
@@ -73,6 +73,49 @@
 .badge--ok {
   background: rgba(46, 204, 113, 0.15);
   color: #2ecc71;
+}
+
+.task-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.task-form input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+}
+
+.task-form button {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: #7c5cff;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.task-form button:hover {
+  background: #6a4cff;
+}
+
+.task-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.task-list li {
+  padding: 0.6rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
 }
 
 .footer {

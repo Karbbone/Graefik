@@ -7,6 +7,11 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
+    /* Alias de chemins (paths résolus relativement à ce tsconfig, sans baseUrl) */
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -14,6 +19,9 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+
+    /* Types de test globaux (describe/it/expect) */
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
 
     /* Linting */
     "strict": true,

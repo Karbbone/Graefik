@@ -1,4 +1,4 @@
-package handler
+package http
 
 import (
 	"net/http"
@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-// Health repond a un simple contrôle de sante de l'API.
+// Health répond à un contrôle de santé simple (pas de logique métier).
 func Health(c *echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]any{
 		"status":  "ok",
