@@ -86,6 +86,8 @@ docker compose exec -T web sh -c "cd /app && bun run check-types"   # tsc
 - Deux thèmes maison : **`graefik-light`** / **`graefik-dark`** (primary = bleu Go `#00ADD8`), défaut = préférence système.
 - Bascule : `shared/theme/` (`theme.ts` = contexte + `useTheme`, `ThemeProvider.tsx`) + `shared/ui/ThemeToggle.tsx`. Le thème est persisté en `localStorage` et appliqué via `data-theme` sur `<html>`. `ThemeProvider` enveloppe l'app dans `app/App.tsx`.
 - Utilise les classes DaisyUI (`btn`, `card`, `input`, `badge`, `alert`, `navbar`, `menu`, `loading`…) plutôt que du CSS custom.
+- **Marque** : couleurs exactes du logo exposées comme tokens Tailwind (`bg-gfteal`, `text-gfteal-deep`, `gfink`, `gfcream`, `gfsand`). Typos : `font-display` (Bricolage Grotesque), `font-mono` (JetBrains Mono), body Manrope (chargées via `index.html`). Ambiance : classes `.gf-mesh`, `.gf-grid`, `.gf-grain`, `.gf-glow` + animations `.gf-reveal`/`.gf-float`/`.gf-ring` (dans `index.css`).
+- **Logo** : `shared/ui/BrandLogo.tsx` affiche `public/logo.png` (à déposer par l'utilisateur) avec un repli SVG aux couleurs de la marque si le fichier est absent.
 
 ## Conventions
 

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-/* Thème clair Graefik — primary = bleu Go (#00ADD8) */
+/* Thème clair Graefik — couleurs du logo (teal mascotte, encre navy, crème) */
 @plugin "daisyui/theme" {
   name: "graefik-light";
   default: true;
@@ -9,20 +9,20 @@
   color-scheme: light;
 
   --color-base-100: #ffffff;
-  --color-base-200: #f5f7f9;
-  --color-base-300: #e6eaee;
-  --color-base-content: #1b2430;
+  --color-base-200: #f2f7f8;
+  --color-base-300: #e0eaec;
+  --color-base-content: #14232e;
 
-  --color-primary: #00add8;
+  --color-primary: #2f97a9;
   --color-primary-content: #ffffff;
-  --color-secondary: #007d9c;
-  --color-secondary-content: #ffffff;
-  --color-accent: #00b39f;
-  --color-accent-content: #ffffff;
-  --color-neutral: #1b2430;
-  --color-neutral-content: #f5f7f9;
+  --color-secondary: #14232e;
+  --color-secondary-content: #f7f2e7;
+  --color-accent: #e0a56a;
+  --color-accent-content: #2a1a0b;
+  --color-neutral: #14232e;
+  --color-neutral-content: #f2f7f8;
 
-  --color-info: #0ea5e9;
+  --color-info: #2f97a9;
   --color-info-content: #ffffff;
   --color-success: #16a34a;
   --color-success-content: #ffffff;
@@ -31,35 +31,35 @@
   --color-error: #dc2626;
   --color-error-content: #ffffff;
 
-  --radius-selector: 0.5rem;
-  --radius-field: 0.5rem;
-  --radius-box: 0.75rem;
+  --radius-selector: 0.75rem;
+  --radius-field: 0.65rem;
+  --radius-box: 1rem;
   --border: 1px;
 }
 
-/* Thème sombre Graefik — primary = bleu Go (#00ADD8) */
+/* Thème sombre Graefik */
 @plugin "daisyui/theme" {
   name: "graefik-dark";
   default: false;
   prefersdark: true;
   color-scheme: dark;
 
-  --color-base-100: #15181e;
-  --color-base-200: #1b1f27;
-  --color-base-300: #232833;
-  --color-base-content: #e7ebf0;
+  --color-base-100: #0e1a20;
+  --color-base-200: #132229;
+  --color-base-300: #1c2d35;
+  --color-base-content: #e9f2f3;
 
-  --color-primary: #00add8;
-  --color-primary-content: #04141b;
-  --color-secondary: #29a9c9;
-  --color-secondary-content: #04141b;
-  --color-accent: #21c3ad;
-  --color-accent-content: #04141b;
-  --color-neutral: #232833;
-  --color-neutral-content: #e7ebf0;
+  --color-primary: #4fb8c8;
+  --color-primary-content: #04202a;
+  --color-secondary: #dfe9ea;
+  --color-secondary-content: #0e1a20;
+  --color-accent: #e6b083;
+  --color-accent-content: #241505;
+  --color-neutral: #1c2d35;
+  --color-neutral-content: #e9f2f3;
 
-  --color-info: #38bdf8;
-  --color-info-content: #04141b;
+  --color-info: #4fb8c8;
+  --color-info-content: #04202a;
   --color-success: #22c55e;
   --color-success-content: #052e16;
   --color-warning: #f59e0b;
@@ -67,14 +67,148 @@
   --color-error: #ef4444;
   --color-error-content: #1a0505;
 
-  --radius-selector: 0.5rem;
-  --radius-field: 0.5rem;
-  --radius-box: 0.75rem;
+  --radius-selector: 0.75rem;
+  --radius-field: 0.65rem;
+  --radius-box: 1rem;
   --border: 1px;
 }
 
-html,
-body,
-#root {
-  height: 100%;
+/* Tokens de marque (couleurs exactes du logo) + typographies */
+@theme {
+  --color-gfteal: #55b7c4;
+  --color-gfteal-deep: #2f97a9;
+  --color-gfink: #14232e;
+  --color-gfcream: #f7f2e7;
+  --color-gfsand: #e6b083;
+
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Manrope", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ---------- Ambiance de marque ---------- */
+
+/* Fond en mesh teal/sable, adouci */
+.gf-mesh {
+  background-color: var(--color-base-200);
+  background-image:
+    radial-gradient(
+      42rem 42rem at 15% -10%,
+      color-mix(in oklab, var(--color-gfteal) 40%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      36rem 36rem at 100% 0%,
+      color-mix(in oklab, var(--color-gfsand) 28%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      40rem 40rem at 60% 120%,
+      color-mix(in oklab, var(--color-gfteal-deep) 30%, transparent),
+      transparent 60%
+    );
+}
+
+/* Grain fin par-dessus */
+.gf-grain {
+  position: relative;
+}
+.gf-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Grille technique subtile (évoque un dashboard de métriques) */
+.gf-grid {
+  background-image:
+    linear-gradient(
+      color-mix(in oklab, var(--color-base-content) 6%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--color-base-content) 6%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 2.25rem 2.25rem;
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 30%, black, transparent);
+  mask-image: radial-gradient(70% 70% at 50% 30%, black, transparent);
+}
+
+/* Halo derrière la mascotte */
+.gf-glow {
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--color-gfteal) 55%, transparent),
+    transparent 68%
+  );
+}
+
+/* ---------- Animations ---------- */
+@keyframes gf-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.gf-reveal {
+  animation: gf-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: var(--gf-d, 0ms);
+}
+
+@keyframes gf-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.gf-float {
+  animation: gf-float 6s ease-in-out infinite;
+}
+
+@keyframes gf-ping {
+  0% {
+    transform: scale(0.75);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+.gf-ring {
+  animation: gf-ping 3.2s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gf-reveal,
+  .gf-float,
+  .gf-ring {
+    animation: none;
+  }
 }
