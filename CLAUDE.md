@@ -37,7 +37,7 @@ L'hexagonal (voir [apps/api/CLAUDE.md](apps/api/CLAUDE.md)) est choisi précisé
 - Le **stockage time-series** sera un autre **port outbound** (ex. `MetricsStore`) avec un adaptateur InfluxDB/TSDB — la techno de BDD reste ainsi remplaçable.
 - Le domaine (routeurs, métriques, dashboards, alertes) reste pur et indépendant du proxy comme de la BDD.
 
-> ⚠️ **État actuel** : la slice « **tasks** » présente dans le code est un **exemple d'échafaudage** qui démontre l'architecture de bout en bout. Ce n'est PAS une fonctionnalité produit — elle a vocation à être remplacée par les vraies features (sources, métriques, dashboards, alertes).
+> ⚠️ **État actuel** : seule l'**authentification** est implémentée (voir plus bas). Les features métier (sources, métriques, dashboards, alertes) restent à construire.
 
 ## Vue d'ensemble
 
@@ -115,7 +115,7 @@ docker compose logs api | grep -A6 "administrateur"
 ```
 
 - Session par **cookie HttpOnly** (`graefik_session`), stockée en **SQLite** (persistée sur le volume `graefik-data`), expiration **7 jours glissants**, flag `Secure` **auto** (HTTPS/`X-Forwarded-Proto`, override `COOKIE_SECURE`).
-- Endpoints : `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`. Les autres routes (`/api/tasks`…) sont **protégées** ; `/api/health` reste public.
+- Endpoints : `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`. `/api/health` est public ; les futures routes métier seront protégées par session (middleware `RequireAuth`).
 - Détails backend : [apps/api/CLAUDE.md](apps/api/CLAUDE.md) · flux frontend : [apps/web/CLAUDE.md](apps/web/CLAUDE.md).
 
 ## Turborepo

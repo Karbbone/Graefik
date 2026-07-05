@@ -45,8 +45,8 @@ apps/web/src/
 ## Alias & imports
 
 - Alias `@` → `src` (configuré dans `vite.config.ts` et `tsconfig.app.json`).
-- Import d'une feature depuis l'extérieur : **toujours** via son index, ex. `import { TasksPanel } from '@/features/tasks'`. Jamais `@/features/tasks/components/...`.
-- Import interne à une feature : chemins relatifs (`../hooks/useTasks`).
+- Import d'une feature depuis l'extérieur : **toujours** via son index, ex. `import { HealthCard } from '@/features/health'`. Jamais `@/features/health/components/...`.
+- Import interne à une feature : chemins relatifs (`../hooks/useHealth`).
 
 ## Où ajouter du code
 
@@ -105,7 +105,7 @@ docker compose exec -T web sh -c "cd /app && bun run check-types"   # tsc
 
 ## Conventions
 
-- Composants fonctionnels + hooks. Un hook par préoccupation (`useTasks`, `useHealth`).
+- Composants fonctionnels + hooks. Un hook par préoccupation (`useAuth`, `useHealth`).
 - Les appels réseau passent par `@/shared/lib/http` (`apiFetch`) et le proxy Vite `/api` → backend Go.
 - Types explicites pour les données d'API (dossier `model/`).
 - Accessibilité : `aria-label` sur les champs, textes de bouton clairs (facilite aussi les tests).

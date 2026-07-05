@@ -30,9 +30,9 @@ apps/api/
    │  ├─ port/                     # interfaces : inbound.go (use cases), outbound.go (repos/gateways)
    │  └─ service/                  # use cases : implémentent les ports inbound
    ├─ adapter/
-   │  ├─ inbound/http/             # driving : handlers Echo, DTO, routes (router.go)
-   │  └─ outbound/memory/          # driven : impl. en mémoire des ports outbound
-   ├─ platform/                    # config, (futur) logger, pool DB
+   │  ├─ inbound/http/             # driving : handlers Echo, middleware, routes (router.go)
+   │  └─ outbound/                 # driven : sqlite/ (persistance), security/ (bcrypt)
+   ├─ platform/                    # config, génération de secrets, (futur) logger
    └─ mocks/port/                  # mocks générés (mockery) — NE PAS éditer à la main
 ```
 
@@ -48,7 +48,7 @@ apps/api/
 
 ## Où ajouter du code
 
-- **Nouvelle règle métier** → `core/domain` (+ test). Ex. une méthode sur `Task`, une validation.
+- **Nouvelle règle métier** → `core/domain` (+ test). Ex. une méthode sur `User`/`Session`, une validation.
 - **Nouveau cas d'usage** → ajoute la méthode à l'interface dans `core/port/inbound.go`, implémente-la dans `core/service`, expose-la via un handler dans `adapter/inbound/http`, câble dans `cmd/api/main.go`.
 - **Nouvelle dépendance externe** (BDD, API tierce…) → déclare un port dans `core/port/outbound.go`, écris l'adaptateur dans `adapter/outbound/<techno>/`, injecte-le dans `main.go`. Le cœur ne change pas.
 - **Nouvel endpoint HTTP** → handler dans `adapter/inbound/http`, route dans `router.go`.
@@ -57,11 +57,11 @@ apps/api/
 
 Stack : **testify** (`assert`/`require`) + **mockery** (mocks des ports). C'est le combo standard de l'écosystème Go.
 
-- Tests **table-driven** quand c'est pertinent (voir `core/domain/task_test.go`).
-- `core/domain` → tests unitaires purs.
-- `core/service` → tests unitaires avec le repository **mocké** (`internal/mocks/port`) : on teste les cas OK, les erreurs métier, les erreurs du repo.
-- `adapter/outbound/memory` → tests de l'implémentation réelle.
-- `adapter/inbound/http` → tests via `e.ServeHTTP(rec, req)` + `httptest`, service mocké.
+- Tests **table-driven** quand c'est pertinent.
+- `core/domain` → tests unitaires purs des règles métier.
+- `core/service` → tests unitaires avec les ports outbound **mockés** (`internal/mocks/port`) : cas OK, erreurs métier, erreurs des dépendances (voir `auth_service_test.go`).
+- `adapter/outbound/sqlite` → tests d'intégration sur une base `:memory:`.
+- `adapter/inbound/http` → tests via `e.ServeHTTP(rec, req)` + `httptest`, service mocké (voir `router_test.go`).
 
 Lancer les tests :
 

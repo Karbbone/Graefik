@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 
 	adapterhttp "github.com/Karbbone/Graefik/apps/api/internal/adapter/inbound/http"
-	"github.com/Karbbone/Graefik/apps/api/internal/adapter/outbound/memory"
 	"github.com/Karbbone/Graefik/apps/api/internal/adapter/outbound/security"
 	"github.com/Karbbone/Graefik/apps/api/internal/adapter/outbound/sqlite"
 	"github.com/Karbbone/Graefik/apps/api/internal/core/service"
@@ -41,7 +40,6 @@ func run() error {
 	userRepo := sqlite.NewUserRepository(db)
 	sessionRepo := sqlite.NewSessionRepository(db)
 	hasher := security.NewBcryptHasher()
-	taskRepo := memory.NewTaskRepository()
 
 	// --- Use cases (cœur) ---
 	authService := service.NewAuthService(userRepo, sessionRepo, hasher, service.AuthConfig{
@@ -54,7 +52,6 @@ func run() error {
 		DevMode:       cfg.DevMode,
 		DevPassword:   cfg.DevPassword,
 	})
-	taskService := service.NewTaskService(taskRepo, time.Now, uuid.NewString)
 
 	// --- Bootstrap : admin initial (mot de passe affiché une fois dans les logs) ---
 	res, err := authService.EnsureAdmin(context.Background())
@@ -72,7 +69,6 @@ func run() error {
 		cfg.CORSOrigins,
 		adapterhttp.CookieConfig{Name: cfg.CookieName, Secure: cfg.CookieSecure, TTL: cfg.SessionTTL},
 		authService,
-		taskService,
 	)
 
 	slog.Info("démarrage de l'API Graefik", "port", cfg.Port, "env", cfg.Env)

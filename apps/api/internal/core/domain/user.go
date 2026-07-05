@@ -1,3 +1,5 @@
+// Package domain contient le cœur métier : entités, value objects, règles et
+// erreurs. Il ne dépend d'AUCUN framework ni détail technique (ni Echo, ni BDD).
 package domain
 
 import (

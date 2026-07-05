@@ -1,7 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { useAuth } from "@/features/auth";
 import { HealthCard } from "@/features/health";
-import { TasksPanel } from "@/features/tasks";
 import { BrandLogo } from "@/shared/ui/BrandLogo";
 
 // Délai de révélation (variable CSS --gf-d) typé pour le style inline.
@@ -122,17 +121,6 @@ export function HomePage() {
             text="Des seuils simples et des notifications quand une métrique dérape."
           />
         </div>
-      </section>
-
-      {/* Bac à sable (démo d'architecture) */}
-      <section>
-        <div className="mb-4 flex items-center gap-3">
-          <h2 className="font-display text-2xl font-bold">Bac à sable</h2>
-          <span className="badge badge-outline badge-sm">
-            démo d&apos;architecture
-          </span>
-        </div>
-        <TasksPanel />
       </section>
     </div>
   );

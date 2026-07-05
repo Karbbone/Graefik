@@ -6,8 +6,6 @@ structname: "Mock{{.InterfaceName}}"
 packages:
   github.com/Karbbone/Graefik/apps/api/internal/core/port:
     interfaces:
-      TaskRepository:
-      TaskService:
       UserRepository:
       SessionRepository:
       PasswordHasher:

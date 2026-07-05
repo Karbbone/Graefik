@@ -19,17 +19,16 @@ import (
 
 const testCookieName = "graefik_session"
 
-func newTestRouter(auth *portmocks.MockAuthService, tasks *portmocks.MockTaskService) *echo.Echo {
+func newTestRouter(auth *portmocks.MockAuthService) *echo.Echo {
 	return adapterhttp.NewRouter(
 		[]string{"*"},
 		adapterhttp.CookieConfig{Name: testCookieName, Secure: "false", TTL: time.Hour},
 		auth,
-		tasks,
 	)
 }
 
 func TestRouter_Health_Public(t *testing.T) {
-	e := newTestRouter(portmocks.NewMockAuthService(t), portmocks.NewMockTaskService(t))
+	e := newTestRouter(portmocks.NewMockAuthService(t))
 
 	req := httptest.NewRequest(http.MethodGet, "/api/health", nil)
 	rec := httptest.NewRecorder()
@@ -44,7 +43,7 @@ func TestRouter_Login_OK(t *testing.T) {
 	session := &domain.Session{Token: "tok-123", UserID: "u1", ExpiresAt: time.Now().Add(time.Hour)}
 	auth.EXPECT().Login(mock.Anything, "graefik", "secret").Return(session, nil).Once()
 
-	e := newTestRouter(auth, portmocks.NewMockTaskService(t))
+	e := newTestRouter(auth)
 
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/login",
 		strings.NewReader(`{"username":"graefik","password":"secret"}`))
@@ -64,7 +63,7 @@ func TestRouter_Login_BadCredentials(t *testing.T) {
 	auth.EXPECT().Login(mock.Anything, "graefik", "wrong").
 		Return(nil, domain.ErrInvalidCredentials).Once()
 
-	e := newTestRouter(auth, portmocks.NewMockTaskService(t))
+	e := newTestRouter(auth)
 
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/login",
 		strings.NewReader(`{"username":"graefik","password":"wrong"}`))
@@ -77,7 +76,7 @@ func TestRouter_Login_BadCredentials(t *testing.T) {
 }
 
 func TestRouter_Me_NoCookie(t *testing.T) {
-	e := newTestRouter(portmocks.NewMockAuthService(t), portmocks.NewMockTaskService(t))
+	e := newTestRouter(portmocks.NewMockAuthService(t))
 
 	req := httptest.NewRequest(http.MethodGet, "/api/auth/me", nil)
 	rec := httptest.NewRecorder()
@@ -91,7 +90,7 @@ func TestRouter_Me_ValidSession(t *testing.T) {
 	auth.EXPECT().Authenticate(mock.Anything, "tok-123").
 		Return(&domain.User{ID: "u1", Username: "graefik"}, nil).Once()
 
-	e := newTestRouter(auth, portmocks.NewMockTaskService(t))
+	e := newTestRouter(auth)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/auth/me", nil)
 	req.AddCookie(&http.Cookie{Name: testCookieName, Value: "tok-123"})
@@ -102,40 +101,11 @@ func TestRouter_Me_ValidSession(t *testing.T) {
 	assert.Contains(t, rec.Body.String(), `"username":"graefik"`)
 }
 
-func TestRouter_Tasks_RequiresAuth(t *testing.T) {
-	e := newTestRouter(portmocks.NewMockAuthService(t), portmocks.NewMockTaskService(t))
-
-	req := httptest.NewRequest(http.MethodGet, "/api/tasks", nil)
-	rec := httptest.NewRecorder()
-	e.ServeHTTP(rec, req)
-
-	assert.Equal(t, http.StatusUnauthorized, rec.Code)
-}
-
-func TestRouter_Tasks_List_Authenticated(t *testing.T) {
-	auth := portmocks.NewMockAuthService(t)
-	auth.EXPECT().Authenticate(mock.Anything, "tok-123").
-		Return(&domain.User{ID: "u1", Username: "graefik"}, nil).Once()
-
-	tasks := portmocks.NewMockTaskService(t)
-	tasks.EXPECT().List(mock.Anything).Return([]*domain.Task{}, nil).Once()
-
-	e := newTestRouter(auth, tasks)
-
-	req := httptest.NewRequest(http.MethodGet, "/api/tasks", nil)
-	req.AddCookie(&http.Cookie{Name: testCookieName, Value: "tok-123"})
-	rec := httptest.NewRecorder()
-	e.ServeHTTP(rec, req)
-
-	require.Equal(t, http.StatusOK, rec.Code)
-	assert.JSONEq(t, `[]`, rec.Body.String())
-}
-
 func TestRouter_Logout_ClearsCookie(t *testing.T) {
 	auth := portmocks.NewMockAuthService(t)
 	auth.EXPECT().Logout(mock.Anything, "tok-123").Return(nil).Once()
 
-	e := newTestRouter(auth, portmocks.NewMockTaskService(t))
+	e := newTestRouter(auth)
 
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/logout", nil)
 	req.AddCookie(&http.Cookie{Name: testCookieName, Value: "tok-123"})
@@ -145,4 +115,30 @@ func TestRouter_Logout_ClearsCookie(t *testing.T) {
 	require.Equal(t, http.StatusNoContent, rec.Code)
 	// Cookie effacé (Max-Age=0 ou expiration passée).
 	assert.Contains(t, rec.Header().Get("Set-Cookie"), testCookieName+"=")
+}
+
+// TestRequireAuth couvre le middleware de protection sur une route factice.
+func TestRequireAuth(t *testing.T) {
+	auth := portmocks.NewMockAuthService(t)
+	auth.EXPECT().Authenticate(mock.Anything, "tok-123").
+		Return(&domain.User{ID: "u1", Username: "graefik"}, nil).Once()
+
+	e := echo.New()
+	e.GET("/protected",
+		func(c *echo.Context) error { return c.NoContent(http.StatusOK) },
+		adapterhttp.RequireAuth(auth, testCookieName),
+	)
+
+	// Sans cookie → 401.
+	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+
+	// Avec cookie valide → 200.
+	req = httptest.NewRequest(http.MethodGet, "/protected", nil)
+	req.AddCookie(&http.Cookie{Name: testCookieName, Value: "tok-123"})
+	rec = httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+	assert.Equal(t, http.StatusOK, rec.Code)
 }

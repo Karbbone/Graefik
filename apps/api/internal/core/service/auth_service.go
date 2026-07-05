@@ -1,3 +1,5 @@
+// Package service contient les use cases : ils implémentent les ports inbound et
+// orchestrent le domaine + les ports outbound. Aucune dépendance framework.
 package service
 
 import (

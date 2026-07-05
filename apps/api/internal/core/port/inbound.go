@@ -12,12 +12,6 @@ import (
 	"github.com/Karbbone/Graefik/apps/api/internal/core/domain"
 )
 
-// TaskService est un port inbound : les cas d'usage du domaine des tâches.
-type TaskService interface {
-	Create(ctx context.Context, title string) (*domain.Task, error)
-	List(ctx context.Context) ([]*domain.Task, error)
-}
-
 // BootstrapResult décrit le résultat de la création éventuelle de l'admin initial.
 type BootstrapResult struct {
 	Created           bool
