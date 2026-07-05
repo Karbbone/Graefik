@@ -1,18 +1,18 @@
-import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { fileURLToPath, URL } from "node:url";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vitest/config";
 
 // En conteneur, docker-compose fournit VITE_PROXY_TARGET=http://api:8080.
 // En natif, on retombe sur localhost.
-const proxyTarget = process.env.VITE_PROXY_TARGET ?? 'http://localhost:8080'
+const proxyTarget = process.env.VITE_PROXY_TARGET ?? "http://localhost:8080";
 
 // https://vite.dev/config/ — https://vitest.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
   server: {
@@ -22,7 +22,7 @@ export default defineConfig({
     // Polling : necessaire pour le HMR sur bind mount Windows/Docker.
     watch: { usePolling: true },
     proxy: {
-      '/api': {
+      "/api": {
         target: proxyTarget,
         changeOrigin: true,
       },
@@ -30,13 +30,13 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
     css: false,
     coverage: {
-      provider: 'v8',
-      include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/**/index.ts'],
+      provider: "v8",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: ["src/**/*.test.{ts,tsx}", "src/test/**", "src/**/index.ts"],
     },
   },
-})
+});

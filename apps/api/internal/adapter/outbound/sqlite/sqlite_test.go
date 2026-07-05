@@ -6,10 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Karbbone/Graefik/apps/api/internal/adapter/outbound/sqlite"
-	"github.com/Karbbone/Graefik/apps/api/internal/core/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Karbbone/Graefik/apps/api/internal/adapter/outbound/sqlite"
+	"github.com/Karbbone/Graefik/apps/api/internal/core/domain"
 )
 
 func newDB(t *testing.T) *sql.DB {

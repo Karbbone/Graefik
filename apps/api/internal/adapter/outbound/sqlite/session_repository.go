@@ -17,10 +17,12 @@ type SessionRepository struct {
 
 var _ port.SessionRepository = (*SessionRepository)(nil)
 
+// NewSessionRepository crée un repository de sessions sur la base fournie.
 func NewSessionRepository(db *sql.DB) *SessionRepository {
 	return &SessionRepository{db: db}
 }
 
+// Create insère une nouvelle session.
 func (r *SessionRepository) Create(ctx context.Context, s *domain.Session) error {
 	_, err := r.db.ExecContext(ctx,
 		`INSERT INTO sessions (token, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)`,
@@ -29,6 +31,7 @@ func (r *SessionRepository) Create(ctx context.Context, s *domain.Session) error
 	return err
 }
 
+// FindByToken retourne la session au token donné (ErrSessionInvalid sinon).
 func (r *SessionRepository) FindByToken(ctx context.Context, token string) (*domain.Session, error) {
 	var (
 		s         domain.Session
@@ -49,17 +52,20 @@ func (r *SessionRepository) FindByToken(ctx context.Context, token string) (*dom
 	return &s, nil
 }
 
+// UpdateExpiry repousse l'expiration d'une session (session glissante).
 func (r *SessionRepository) UpdateExpiry(ctx context.Context, token string, expiresAt time.Time) error {
 	_, err := r.db.ExecContext(ctx,
 		`UPDATE sessions SET expires_at = ? WHERE token = ?`, expiresAt.Unix(), token)
 	return err
 }
 
+// Delete supprime la session au token donné (idempotent).
 func (r *SessionRepository) Delete(ctx context.Context, token string) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM sessions WHERE token = ?`, token)
 	return err
 }
 
+// DeleteExpired purge les sessions dont l'expiration est dépassée.
 func (r *SessionRepository) DeleteExpired(ctx context.Context, now time.Time) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM sessions WHERE expires_at < ?`, now.Unix())
 	return err

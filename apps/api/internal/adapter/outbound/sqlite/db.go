@@ -5,6 +5,7 @@ package sqlite
 import (
 	"database/sql"
 
+	// Driver SQLite pur-Go (enregistré sous le nom "sqlite").
 	_ "modernc.org/sqlite"
 )
 

@@ -1,11 +1,11 @@
-import { Outlet } from 'react-router-dom'
-import { useAuth } from '@/features/auth'
-import { BrandLogo } from '@/shared/ui/BrandLogo'
-import { ThemeToggle } from '@/shared/ui/ThemeToggle'
+import { Outlet } from "react-router-dom";
+import { useAuth } from "@/features/auth";
+import { BrandLogo } from "@/shared/ui/BrandLogo";
+import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 
 // AppLayout : coquille des pages protégées (barre de navigation + contenu).
 export function AppLayout() {
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-full bg-base-200">
@@ -43,5 +43,5 @@ export function AppLayout() {
         <Outlet />
       </main>
     </div>
-  )
+  );
 }

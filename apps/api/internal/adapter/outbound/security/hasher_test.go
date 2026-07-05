@@ -3,9 +3,10 @@ package security_test
 import (
 	"testing"
 
-	"github.com/Karbbone/Graefik/apps/api/internal/adapter/outbound/security"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Karbbone/Graefik/apps/api/internal/adapter/outbound/security"
 )
 
 func TestBcryptHasher(t *testing.T) {

@@ -1,28 +1,28 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/auth'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/auth";
 
 export function LoginForm() {
-  const { login } = useAuth()
-  const navigate = useNavigate()
-  const [username, setUsername] = useState('graefik')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("graefik");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setSubmitting(true)
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
     try {
-      await login(username, password)
-      navigate('/', { replace: true })
+      await login(username, password);
+      navigate("/", { replace: true });
     } catch {
-      setError('Identifiants invalides')
+      setError("Identifiants invalides");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -59,9 +59,9 @@ export function LoginForm() {
         {submitting ? (
           <span className="loading loading-spinner loading-sm" />
         ) : (
-          'Se connecter'
+          "Se connecter"
         )}
       </button>
     </form>
-  )
+  );
 }

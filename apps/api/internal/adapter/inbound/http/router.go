@@ -4,9 +4,10 @@
 package http
 
 import (
-	"github.com/Karbbone/Graefik/apps/api/internal/core/port"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
+
+	"github.com/Karbbone/Graefik/apps/api/internal/core/port"
 )
 
 // NewRouter construit l'instance Echo, branche les middlewares et les routes

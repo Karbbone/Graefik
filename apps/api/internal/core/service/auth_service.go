@@ -12,10 +12,10 @@ import (
 // AuthConfig regroupe les dépendances injectées du service d'authentification.
 type AuthConfig struct {
 	Now           func() time.Time
-	NewID         func() string             // identifiants d'utilisateur
-	NewToken      func() (string, error)    // tokens de session (crypto-aléatoires)
-	NewPassword   func() (string, error)    // mot de passe admin généré
-	TTL           time.Duration             // durée de vie d'une session
+	NewID         func() string          // identifiants d'utilisateur
+	NewToken      func() (string, error) // tokens de session (crypto-aléatoires)
+	NewPassword   func() (string, error) // mot de passe admin généré
+	TTL           time.Duration          // durée de vie d'une session
 	AdminUsername string
 }
 

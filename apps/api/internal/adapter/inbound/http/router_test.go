@@ -7,13 +7,14 @@ import (
 	"testing"
 	"time"
 
-	adapterhttp "github.com/Karbbone/Graefik/apps/api/internal/adapter/inbound/http"
-	"github.com/Karbbone/Graefik/apps/api/internal/core/domain"
-	portmocks "github.com/Karbbone/Graefik/apps/api/internal/mocks/port"
 	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+
+	adapterhttp "github.com/Karbbone/Graefik/apps/api/internal/adapter/inbound/http"
+	"github.com/Karbbone/Graefik/apps/api/internal/core/domain"
+	portmocks "github.com/Karbbone/Graefik/apps/api/internal/mocks/port"
 )
 
 const testCookieName = "graefik_session"

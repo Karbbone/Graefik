@@ -6,12 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Karbbone/Graefik/apps/api/internal/core/domain"
-	"github.com/Karbbone/Graefik/apps/api/internal/core/service"
-	portmocks "github.com/Karbbone/Graefik/apps/api/internal/mocks/port"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Karbbone/Graefik/apps/api/internal/core/domain"
+	"github.com/Karbbone/Graefik/apps/api/internal/core/service"
+	portmocks "github.com/Karbbone/Graefik/apps/api/internal/mocks/port"
 )
 
 func authCfg() service.AuthConfig {

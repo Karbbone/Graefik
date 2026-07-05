@@ -2,8 +2,9 @@
 package security
 
 import (
-	"github.com/Karbbone/Graefik/apps/api/internal/core/port"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/Karbbone/Graefik/apps/api/internal/core/port"
 )
 
 // BcryptHasher implémente port.PasswordHasher via bcrypt.

@@ -1,8 +1,8 @@
-import { useTasks } from '../hooks/useTasks'
-import { TaskForm } from './TaskForm'
+import { useTasks } from "../hooks/useTasks";
+import { TaskForm } from "./TaskForm";
 
 export function TasksPanel() {
-  const { tasks, loading, error, add } = useTasks()
+  const { tasks, loading, error, add } = useTasks();
 
   return (
     <div className="card bg-base-100 shadow">
@@ -32,5 +32,5 @@ export function TasksPanel() {
         )}
       </div>
     </div>
-  )
+  );
 }

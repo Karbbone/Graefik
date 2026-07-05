@@ -5,10 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Karbbone/Graefik/apps/api/internal/adapter/outbound/memory"
-	"github.com/Karbbone/Graefik/apps/api/internal/core/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Karbbone/Graefik/apps/api/internal/adapter/outbound/memory"
+	"github.com/Karbbone/Graefik/apps/api/internal/core/domain"
 )
 
 func TestTaskRepository_SaveAndFindAll(t *testing.T) {

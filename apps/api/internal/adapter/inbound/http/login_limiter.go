@@ -6,11 +6,11 @@ import (
 )
 
 // loginLimiter est un verrou anti-brute-force en mémoire, par clé (IP).
-// Après `max` échecs consécutifs, la clé est verrouillée pendant `lockDuration`.
+// Après maxAttempts échecs consécutifs, la clé est verrouillée pendant lockDuration.
 type loginLimiter struct {
 	mu           sync.Mutex
 	attempts     map[string]*attemptInfo
-	max          int
+	maxAttempts  int
 	lockDuration time.Duration
 	now          func() time.Time
 }
@@ -20,10 +20,10 @@ type attemptInfo struct {
 	lockedUntil time.Time
 }
 
-func newLoginLimiter(max int, lockDuration time.Duration, now func() time.Time) *loginLimiter {
+func newLoginLimiter(maxAttempts int, lockDuration time.Duration, now func() time.Time) *loginLimiter {
 	return &loginLimiter{
 		attempts:     make(map[string]*attemptInfo),
-		max:          max,
+		maxAttempts:  maxAttempts,
 		lockDuration: lockDuration,
 		now:          now,
 	}
@@ -50,7 +50,7 @@ func (l *loginLimiter) recordFailure(key string) {
 		l.attempts[key] = a
 	}
 	a.failures++
-	if a.failures >= l.max {
+	if a.failures >= l.maxAttempts {
 		a.lockedUntil = l.now().Add(l.lockDuration)
 		a.failures = 0
 	}

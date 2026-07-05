@@ -12,6 +12,7 @@
     "dev:down": "docker compose down",
     "dev:native": "turbo run dev",
     "build": "turbo run build",
+    "format": "turbo run format",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "check-types": "turbo run check-types",

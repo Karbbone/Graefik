@@ -55,6 +55,18 @@ apps/web/src/
 - **Code réutilisable transverse** → `src/shared/` (jamais dans une feature).
 - **Provider global** (router, contexte, thème) → `src/app/`.
 
+## Lint & format
+
+- **Biome** (`biome.json`) gère le **formatage** et l'essentiel du **lint** (rapide, une config). Style imposé : guillemets doubles, points-virgules, imports triés, `import type` obligatoire, `any` interdit.
+- **ESLint** est réduit à **une seule responsabilité** que Biome ne couvre pas : `eslint-plugin-boundaries` (frontières feature-based). Voir `eslint.config.js`.
+
+```bash
+docker compose exec -T web sh -c "cd /app && bun run format"   # Biome --write (corrige)
+docker compose exec -T web sh -c "cd /app && bun run lint"     # Biome check + ESLint boundaries (vérifie)
+```
+
+> `bun run lint` échoue si le code n'est pas formaté OU si une règle est violée. Lance `bun run format` avant de committer.
+
 ## Tests
 
 Stack : **Vitest** + **@testing-library/react** + **MSW** (mock réseau).

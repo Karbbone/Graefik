@@ -98,6 +98,19 @@ Implémentée en respectant l'hexagonal :
 
 > Les mocks (`internal/mocks/port`) couvrent aussi `UserRepository`, `SessionRepository`, `PasswordHasher`, `AuthService` — régénère-les après toute modif d'interface (voir plus haut).
 
+## Lint & format
+
+Outil unique : **golangci-lint v2** (installé dans l'image dev, config `.golangci.yml`).
+
+```bash
+docker compose exec -T api sh -c "cd /app && golangci-lint fmt"   # formate (gofumpt + goimports)
+docker compose exec -T api sh -c "cd /app && golangci-lint run"   # lint (0 issue exigé)
+```
+
+- **Formatage** : gofumpt (plus strict que gofmt) + goimports (imports locaux `github.com/Karbbone/Graefik` regroupés).
+- **Linters** : jeu standard (govet, staticcheck, errcheck, ineffassign, unused) + revive, gocritic, errorlint, unconvert, bodyclose. Les mocks générés et les `_test.go` sont exclus/assouplis.
+- Règles apprises : pas de redéfinition de builtins (`max`, `min`…), commentaires de doc sur tout l'exporté, pas d'`os.Exit` après un `defer` (logique dans `run() error`). `misspell` est désactivé (commentaires en français).
+
 ## Conventions Go
 
 - Handlers Echo v5 : signature `func(c *echo.Context) error` (pointeur, ≠ v4).

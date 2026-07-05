@@ -1,9 +1,9 @@
-import { useHealth } from '../hooks/useHealth'
+import { useHealth } from "../hooks/useHealth";
 
 export function HealthCard() {
-  const { health, error } = useHealth()
-  const online = !!health && !error
-  const label = online ? 'En ligne' : error ? 'Hors ligne' : 'Connexion…'
+  const { health, error } = useHealth();
+  const online = !!health && !error;
+  const label = online ? "En ligne" : error ? "Hors ligne" : "Connexion…";
 
   return (
     <div className="rounded-box border border-base-300 bg-base-100 p-5 shadow-sm">
@@ -17,7 +17,7 @@ export function HealthCard() {
           )}
           <span
             className={`relative inline-flex size-2.5 rounded-full ${
-              online ? 'bg-success' : error ? 'bg-error' : 'bg-warning'
+              online ? "bg-success" : error ? "bg-error" : "bg-warning"
             }`}
           />
         </span>
@@ -26,8 +26,8 @@ export function HealthCard() {
         {label}
       </div>
       <div className="mt-1 font-mono text-xs opacity-60">
-        {health ? health.go : error ? error : '—'}
+        {health ? health.go : error ? error : "—"}
       </div>
     </div>
-  )
+  );
 }

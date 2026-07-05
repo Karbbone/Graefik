@@ -1,6 +1,6 @@
-import { LoginForm } from '@/features/auth'
-import { BrandLogo } from '@/shared/ui/BrandLogo'
-import { ThemeToggle } from '@/shared/ui/ThemeToggle'
+import { LoginForm } from "@/features/auth";
+import { BrandLogo } from "@/shared/ui/BrandLogo";
+import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 
 export function LoginPage() {
   return (
@@ -14,7 +14,10 @@ export function LoginPage() {
       <div className="gf-reveal relative w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="relative mb-3 grid size-20 place-items-center">
-            <div className="gf-glow absolute inset-0 rounded-full blur-xl" aria-hidden />
+            <div
+              className="gf-glow absolute inset-0 rounded-full blur-xl"
+              aria-hidden
+            />
             <BrandLogo size={72} className="relative gf-float" />
           </div>
           <h1 className="font-display text-3xl font-extrabold tracking-tight">
@@ -30,11 +33,11 @@ export function LoginPage() {
         </div>
 
         <p className="mt-4 text-center text-xs text-base-content/50">
-          Premier lancement&nbsp;? Le mot de passe de{' '}
-          <code className="font-mono">graefik</code> s&apos;affiche dans les logs
-          du conteneur.
+          Premier lancement&nbsp;? Le mot de passe de{" "}
+          <code className="font-mono">graefik</code> s&apos;affiche dans les
+          logs du conteneur.
         </p>
       </div>
     </div>
-  )
+  );
 }

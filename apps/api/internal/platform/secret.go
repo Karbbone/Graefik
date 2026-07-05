@@ -21,9 +21,9 @@ const base62Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123
 func GeneratePassword() (string, error) {
 	const length = 24
 	out := make([]byte, length)
-	max := big.NewInt(int64(len(base62Alphabet)))
+	alphabetLen := big.NewInt(int64(len(base62Alphabet)))
 	for i := range out {
-		idx, err := rand.Int(rand.Reader, max)
+		idx, err := rand.Int(rand.Reader, alphabetLen)
 		if err != nil {
 			return "", err
 		}

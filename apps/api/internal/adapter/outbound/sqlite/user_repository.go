@@ -17,10 +17,12 @@ type UserRepository struct {
 
 var _ port.UserRepository = (*UserRepository)(nil)
 
+// NewUserRepository crée un repository d'utilisateurs sur la base fournie.
 func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
+// Create insère un nouvel utilisateur.
 func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	_, err := r.db.ExecContext(ctx,
 		`INSERT INTO users (id, username, password_hash, created_at) VALUES (?, ?, ?, ?)`,
@@ -29,14 +31,17 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	return err
 }
 
+// FindByID retourne l'utilisateur d'identifiant donné (ErrUserNotFound sinon).
 func (r *UserRepository) FindByID(ctx context.Context, id string) (*domain.User, error) {
 	return r.queryUser(ctx, `SELECT id, username, password_hash, created_at FROM users WHERE id = ?`, id)
 }
 
+// FindByUsername retourne l'utilisateur au nom donné (ErrUserNotFound sinon).
 func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*domain.User, error) {
 	return r.queryUser(ctx, `SELECT id, username, password_hash, created_at FROM users WHERE username = ?`, username)
 }
 
+// Count retourne le nombre d'utilisateurs.
 func (r *UserRepository) Count(ctx context.Context) (int, error) {
 	var n int
 	err := r.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM users`).Scan(&n)

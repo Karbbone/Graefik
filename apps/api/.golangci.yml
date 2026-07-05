@@ -1,0 +1,36 @@
+version: "2"
+
+linters:
+  default: standard # errcheck, govet, ineffassign, staticcheck, unused
+  enable:
+    - revive # style/qualité idiomatique
+    - gocritic # diagnostics de code
+    - errorlint # bon usage de errors.Is/As et du wrapping
+    - unconvert # conversions inutiles
+    - bodyclose # http.Response.Body non fermé
+  exclusions:
+    generated: lax
+    paths:
+      - internal/mocks
+    rules:
+      # Les tests peuvent ignorer des erreurs et être moins stricts.
+      - path: _test\.go
+        linters:
+          - errcheck
+          - revive
+          - gocritic
+
+formatters:
+  enable:
+    - gofumpt # formatage plus strict que gofmt
+    - goimports # tri/regroupement des imports
+  settings:
+    gofumpt:
+      extra-rules: true
+    goimports:
+      local-prefixes:
+        - github.com/Karbbone/Graefik
+  exclusions:
+    generated: lax
+    paths:
+      - internal/mocks

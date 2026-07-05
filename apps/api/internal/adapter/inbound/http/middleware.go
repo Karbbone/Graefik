@@ -3,8 +3,9 @@ package http
 import (
 	"net/http"
 
-	"github.com/Karbbone/Graefik/apps/api/internal/core/port"
 	"github.com/labstack/echo/v5"
+
+	"github.com/Karbbone/Graefik/apps/api/internal/core/port"
 )
 
 // userContextKey est la clé sous laquelle l'utilisateur authentifié est stocké dans le contexte Echo.

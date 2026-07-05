@@ -1,119 +1,83 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import boundaries from 'eslint-plugin-boundaries'
-import tseslint from 'typescript-eslint'
+// ESLint est réduit à sa seule responsabilité que Biome ne couvre pas :
+// l'enforcement des frontières de l'architecture feature-based
+// (eslint-plugin-boundaries). Le formatage et le reste du lint sont gérés par Biome.
+import boundaries from "eslint-plugin-boundaries";
+import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage'] },
-
+  { ignores: ["dist", "coverage"] },
   {
-    files: ['**/*.{ts,tsx}'],
-    extends: [js.configs.recommended, tseslint.configs.recommended],
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-    },
+    files: ["src/**/*.{ts,tsx}"],
     languageOptions: {
-      ecmaVersion: 2022,
-      globals: globals.browser,
+      parser: tseslint.parser,
     },
-    rules: {
-      ...reactHooks.configs['recommended-latest'].rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
-    },
-  },
-
-  // Fichiers de config exécutés sous Node.
-  {
-    files: ['vite.config.ts', 'eslint.config.js'],
-    languageOptions: {
-      globals: globals.node,
-    },
-  },
-
-  // --- Frontières feature-based (eslint-plugin-boundaries) ---
-  {
-    files: ['src/**/*.{ts,tsx}'],
     plugins: { boundaries },
     settings: {
-      'import/resolver': {
-        typescript: { alwaysTryTypes: true, project: './tsconfig.app.json' },
+      "import/resolver": {
+        typescript: { alwaysTryTypes: true, project: "./tsconfig.app.json" },
       },
-      'boundaries/include': ['src/**/*'],
-      'boundaries/ignore': [
-        'src/main.tsx',
-        'src/test/**/*',
-        'src/**/*.test.{ts,tsx}',
-        'src/vite-env.d.ts',
+      "boundaries/include": ["src/**/*"],
+      "boundaries/ignore": [
+        "src/main.tsx",
+        "src/test/**/*",
+        "src/**/*.test.{ts,tsx}",
+        "src/vite-env.d.ts",
       ],
-      'boundaries/elements': [
-        { type: 'app', pattern: 'src/app/**/*' },
-        { type: 'pages', pattern: 'src/pages/**/*' },
+      "boundaries/elements": [
+        { type: "app", pattern: "src/app/**/*" },
+        { type: "pages", pattern: "src/pages/**/*" },
         {
-          type: 'feature',
-          pattern: 'src/features/*/**/*',
-          capture: ['featureName'],
+          type: "feature",
+          pattern: "src/features/*/**/*",
+          capture: ["featureName"],
         },
-        { type: 'shared', pattern: 'src/shared/**/*' },
+        { type: "shared", pattern: "src/shared/**/*" },
       ],
     },
     rules: {
-      // Une feature n'importe QUE du shared ou sa propre feature.
-      // app/pages composent les features. shared reste autonome.
-      'boundaries/dependencies': [
-        'error',
+      "boundaries/dependencies": [
+        "error",
         {
-          default: 'disallow',
+          default: "disallow",
           rules: [
             {
-              from: [{ type: 'app' }],
+              from: [{ type: "app" }],
               allow: [
-                { to: { type: 'app' } },
-                { to: { type: 'pages' } },
-                { to: { type: 'feature' } },
-                { to: { type: 'shared' } },
+                { to: { type: "app" } },
+                { to: { type: "pages" } },
+                { to: { type: "feature" } },
+                { to: { type: "shared" } },
               ],
             },
             {
-              from: [{ type: 'pages' }],
+              from: [{ type: "pages" }],
               allow: [
-                { to: { type: 'pages' } },
-                { to: { type: 'feature' } },
-                { to: { type: 'shared' } },
+                { to: { type: "pages" } },
+                { to: { type: "feature" } },
+                { to: { type: "shared" } },
               ],
             },
             {
-              from: [{ type: 'feature' }],
+              from: [{ type: "feature" }],
               allow: [
-                { to: { type: 'shared' } },
+                { to: { type: "shared" } },
                 {
                   to: {
-                    type: 'feature',
-                    captured: { featureName: '{{ from.captured.featureName }}' },
+                    type: "feature",
+                    captured: {
+                      featureName: "{{ from.captured.featureName }}",
+                    },
                   },
                 },
               ],
             },
             {
-              from: [{ type: 'shared' }],
-              allow: [{ to: { type: 'shared' } }],
+              from: [{ type: "shared" }],
+              allow: [{ to: { type: "shared" } }],
             },
           ],
         },
       ],
     },
   },
-
-  // Les barrels (index.ts) réexportent composants + hooks/types : hors périmètre du fast-refresh.
-  {
-    files: ['**/index.ts'],
-    rules: {
-      'react-refresh/only-export-components': 'off',
-    },
-  },
-)
+);

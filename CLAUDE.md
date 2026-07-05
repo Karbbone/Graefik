@@ -71,7 +71,18 @@ docker compose exec -T api sh -c "cd /app && go vet ./..."
 docker compose exec -T web sh -c "cd /app && bun run test"
 docker compose exec -T web sh -c "cd /app && bun run lint"
 docker compose exec -T web sh -c "cd /app && bun run check-types"
+docker compose exec -T web sh -c "cd /app && bun run format"
 ```
+
+### Qualité de code (formatage + lint)
+
+| | Frontend (`apps/web`) | Backend (`apps/api`) |
+|--|----------------------|----------------------|
+| Formateur | **Biome** (`bun run format`) | **gofumpt** via `golangci-lint fmt` |
+| Linter | **Biome** + **ESLint** (boundaries) → `bun run lint` | **golangci-lint** → `golangci-lint run` |
+
+- Front : `bun run format` corrige (Biome), `bun run lint` vérifie (Biome + la règle d'architecture ESLint). Style imposé : guillemets doubles, points-virgules, imports triés.
+- Back : `golangci-lint fmt` formate, `golangci-lint run` lint (govet/staticcheck/errcheck/revive/gocritic/errorlint…). Config `apps/api/.golangci.yml`.
 
 > Si un conteneur n'est pas démarré, lance `docker compose up -d` d'abord.
 

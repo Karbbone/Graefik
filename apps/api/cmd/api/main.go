@@ -20,15 +20,23 @@ import (
 )
 
 func main() {
+	if err := run(); err != nil {
+		slog.Error("l'API s'est arrêtée", "error", err)
+		os.Exit(1)
+	}
+}
+
+// run câble les dépendances et démarre le serveur. Isolé de main() pour que les
+// defer (fermeture de la BDD) s'exécutent avant tout os.Exit.
+func run() error {
 	cfg := platform.LoadConfig()
 
 	// --- Adaptateurs outbound (pilotés) ---
 	db, err := sqlite.Open(cfg.DBPath)
 	if err != nil {
-		slog.Error("ouverture de la base SQLite impossible", "path", cfg.DBPath, "error", err)
-		os.Exit(1)
+		return fmt.Errorf("ouverture de la base SQLite (%s) : %w", cfg.DBPath, err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	userRepo := sqlite.NewUserRepository(db)
 	sessionRepo := sqlite.NewSessionRepository(db)
@@ -49,8 +57,7 @@ func main() {
 	// --- Bootstrap : admin initial (mot de passe affiché une fois dans les logs) ---
 	res, err := authService.EnsureAdmin(context.Background())
 	if err != nil {
-		slog.Error("initialisation de l'admin impossible", "error", err)
-		os.Exit(1)
+		return fmt.Errorf("initialisation de l'admin : %w", err)
 	}
 	if res.Created {
 		printAdminBanner(res.Username, res.GeneratedPassword)
@@ -65,22 +72,19 @@ func main() {
 	)
 
 	slog.Info("démarrage de l'API Graefik", "port", cfg.Port, "env", cfg.Env)
-	if err := router.Start(":" + cfg.Port); err != nil {
-		slog.Error("le serveur s'est arrêté", "error", err)
-		os.Exit(1)
-	}
+	return router.Start(":" + cfg.Port)
 }
 
 // printAdminBanner affiche le compte admin initial dans les logs (une seule fois).
 func printAdminBanner(username, password string) {
 	const line = "============================================================"
-	fmt.Fprintln(os.Stdout, "\n"+line)
-	fmt.Fprintln(os.Stdout, "  Graefik — compte administrateur initial")
-	fmt.Fprintln(os.Stdout, "")
-	fmt.Fprintf(os.Stdout, "  Identifiant  : %s\n", username)
-	fmt.Fprintf(os.Stdout, "  Mot de passe : %s\n", password)
-	fmt.Fprintln(os.Stdout, "")
-	fmt.Fprintln(os.Stdout, "  Ce mot de passe n'est affiché qu'UNE seule fois.")
-	fmt.Fprintln(os.Stdout, "  Notez-le et changez-le dès que possible.")
-	fmt.Fprintf(os.Stdout, "%s\n\n", line)
+	fmt.Println("\n" + line)
+	fmt.Println("  Graefik — compte administrateur initial")
+	fmt.Println()
+	fmt.Printf("  Identifiant  : %s\n", username)
+	fmt.Printf("  Mot de passe : %s\n", password)
+	fmt.Println()
+	fmt.Println("  Ce mot de passe n'est affiché qu'UNE seule fois.")
+	fmt.Println("  Notez-le et changez-le dès que possible.")
+	fmt.Printf("%s\n\n", line)
 }
