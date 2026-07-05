@@ -1,15 +1,15 @@
-import type { CSSProperties, ReactNode } from 'react'
-import { useAuth } from '@/features/auth'
-import { HealthCard } from '@/features/health'
-import { TasksPanel } from '@/features/tasks'
-import { BrandLogo } from '@/shared/ui/BrandLogo'
+import type { CSSProperties, ReactNode } from "react";
+import { useAuth } from "@/features/auth";
+import { HealthCard } from "@/features/health";
+import { TasksPanel } from "@/features/tasks";
+import { BrandLogo } from "@/shared/ui/BrandLogo";
 
 // Délai de révélation (variable CSS --gf-d) typé pour le style inline.
 const delay = (ms: number): CSSProperties =>
-  ({ '--gf-d': `${ms}ms` }) as CSSProperties
+  ({ "--gf-d": `${ms}ms` }) as CSSProperties;
 
 export function HomePage() {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   return (
     <div className="flex flex-col gap-10">
@@ -29,8 +29,11 @@ export function HomePage() {
               className="gf-reveal mt-5 font-display text-5xl font-extrabold leading-[1.05] tracking-tight text-base-content sm:text-6xl"
               style={delay(80)}
             >
-              Bonjour,{' '}
-              <span className="text-gfteal-deep">{user?.username ?? 'graefik'}</span>.
+              Bonjour,{" "}
+              <span className="text-gfteal-deep">
+                {user?.username ?? "graefik"}
+              </span>
+              .
             </h1>
 
             <p
@@ -65,17 +68,23 @@ export function HomePage() {
 
           {/* Mascotte */}
           <div className="relative mx-auto flex aspect-square w-52 items-center justify-center sm:w-64">
-            <div className="gf-glow absolute inset-0 rounded-full blur-2xl" aria-hidden />
+            <div
+              className="gf-glow absolute inset-0 rounded-full blur-2xl"
+              aria-hidden
+            />
             <div
               className="gf-ring absolute inset-4 rounded-full border border-gfteal/50"
               aria-hidden
             />
             <div
               className="gf-ring absolute inset-4 rounded-full border border-gfteal/40"
-              style={{ animationDelay: '1.6s' }}
+              style={{ animationDelay: "1.6s" }}
               aria-hidden
             />
-            <BrandLogo size={210} className="gf-float relative drop-shadow-xl" />
+            <BrandLogo
+              size={210}
+              className="gf-float relative drop-shadow-xl"
+            />
           </div>
         </div>
       </section>
@@ -91,7 +100,9 @@ export function HomePage() {
       {/* Feuille de route */}
       <section>
         <div className="mb-4 flex items-end justify-between">
-          <h2 className="font-display text-2xl font-bold">Bientôt sur Graefik</h2>
+          <h2 className="font-display text-2xl font-bold">
+            Bientôt sur Graefik
+          </h2>
           <span className="text-sm opacity-50">feuille de route</span>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
@@ -117,12 +128,14 @@ export function HomePage() {
       <section>
         <div className="mb-4 flex items-center gap-3">
           <h2 className="font-display text-2xl font-bold">Bac à sable</h2>
-          <span className="badge badge-outline badge-sm">démo d&apos;architecture</span>
+          <span className="badge badge-outline badge-sm">
+            démo d&apos;architecture
+          </span>
         </div>
         <TasksPanel />
       </section>
     </div>
-  )
+  );
 }
 
 function StatCard({
@@ -130,9 +143,9 @@ function StatCard({
   value,
   hint,
 }: {
-  label: string
-  value: string
-  hint: string
+  label: string;
+  value: string;
+  hint: string;
 }) {
   return (
     <div className="rounded-box border border-base-300 bg-base-100 p-5 shadow-sm">
@@ -144,7 +157,7 @@ function StatCard({
       </div>
       <div className="mt-1 text-xs opacity-60">{hint}</div>
     </div>
-  )
+  );
 }
 
 function RoadmapCard({
@@ -152,9 +165,9 @@ function RoadmapCard({
   title,
   text,
 }: {
-  icon: ReactNode
-  title: string
-  text: string
+  icon: ReactNode;
+  title: string;
+  text: string;
 }) {
   return (
     <div className="group rounded-box border border-base-300 bg-base-100 p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-gfteal hover:shadow-md">
@@ -165,7 +178,9 @@ function RoadmapCard({
         <span className="badge badge-ghost badge-sm">bientôt</span>
       </div>
       <h3 className="mt-4 font-display text-lg font-bold">{title}</h3>
-      <p className="mt-1 text-sm leading-relaxed text-base-content/70">{text}</p>
+      <p className="mt-1 text-sm leading-relaxed text-base-content/70">
+        {text}
+      </p>
     </div>
-  )
+  );
 }
