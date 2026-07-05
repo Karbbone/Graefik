@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Annule les runs précédents encore en cours sur la même réf.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (Go)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: apps/api/go.mod
+          cache-dependency-path: apps/api/go.sum
+
+      - name: Installer golangci-lint
+        run: |
+          curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b "$(go env GOPATH)/bin" v2.12.2
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Mocks à jour (mockery)
+        run: |
+          go run github.com/vektra/mockery/v3@v3.7.1
+          git diff --exit-code internal/mocks
+
+      - name: Formatage (gofumpt/goimports)
+        run: golangci-lint fmt --diff
+
+      - name: Lint
+        run: golangci-lint run
+
+      - name: Tests
+        run: go test ./...
+
+      - name: Build
+        run: go build ./...
+
+  frontend:
+    name: Frontend (bun)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.14"
+
+      - name: Installer les dépendances
+        run: bun install --frozen-lockfile
+
+      - name: Lint (Biome + ESLint boundaries)
+        run: bun run lint
+
+      - name: Types
+        run: bun run check-types
+
+      - name: Tests
+        run: bun run test
+
+      - name: Knip (code/deps morts)
+        run: bun run knip
+
+      - name: Build
+        run: bun run build

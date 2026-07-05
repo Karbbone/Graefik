@@ -67,6 +67,8 @@ docker compose exec -T web sh -c "cd /app && bun run lint"     # Biome check + E
 
 > `bun run lint` échoue si le code n'est pas formaté OU si une règle est violée. Lance `bun run format` avant de committer.
 
+**Knip** (`knip.json`, `bun run knip`) traque les fichiers, dépendances et exports non utilisés. Il détecte l'usage de daisyui/tailwindcss via le CSS. N'exporte donc depuis les `index.ts` de feature que ce qui est réellement consommé ailleurs.
+
 ## Tests
 
 Stack : **Vitest** + **@testing-library/react** + **MSW** (mock réseau).

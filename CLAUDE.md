@@ -83,6 +83,14 @@ docker compose exec -T web sh -c "cd /app && bun run format"
 
 - Front : `bun run format` corrige (Biome), `bun run lint` vérifie (Biome + la règle d'architecture ESLint). Style imposé : guillemets doubles, points-virgules, imports triés.
 - Back : `golangci-lint fmt` formate, `golangci-lint run` lint (govet/staticcheck/errcheck/revive/gocritic/errorlint…). Config `apps/api/.golangci.yml`.
+- Front : **Knip** (`bun run knip`) détecte fichiers/dépendances/exports morts.
+
+### Intégration continue
+
+`.github/workflows/ci.yml` rejoue tout à chaque push / PR sur `main`, en deux jobs (les runners installent Go et bun directement, **pas de Docker en CI**) :
+
+- **Backend** : mocks à jour (mockery + `git diff`), `golangci-lint fmt --diff`, `golangci-lint run`, `go test`, `go build`.
+- **Frontend** : `bun run lint` (Biome + ESLint), `check-types`, `test` (Vitest), `knip`, `build`.
 
 > Si un conteneur n'est pas démarré, lance `docker compose up -d` d'abord.
 
