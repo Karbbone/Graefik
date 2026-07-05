@@ -2,6 +2,43 @@
 
 Guide destiné à Claude Code pour travailler dans ce dépôt. Lis-le en entier avant toute modification.
 
+## Contexte produit — que fait Graefik ?
+
+**Graefik** est une application de **monitoring et de data-visualisation self-hosted**, spécialisée dans les **reverse proxies** (Traefik en premier). Le nom est un mot-valise : **Graf**ana + Tra**efik**, et un clin d'œil à « graphique ». Prononcé « graphique ».
+
+### Le problème
+Un reverse proxy comme Traefik expose énormément de métriques (routeurs, services, volume de requêtes, latences, codes HTTP, erreurs…), mais les exploiter demande aujourd'hui d'assembler et maintenir soi-même une stack lourde (Prometheus + Grafana + configuration). C'est disproportionné pour « juste » voir l'état de ses routeurs.
+
+### La proposition
+Graefik = **« un Grafana en un »**, prêt à l'emploi et spécialisé reverse proxy. On le déploie comme **un simple conteneur**, à côté de son Traefik (exactement dans le même esprit self-hosted que Traefik lui-même), et on obtient directement des tableaux de bord des différents routeurs/services.
+
+### Ce que fait (et fera) l'application
+1. **Se connecter** à un reverse proxy (Traefik d'abord) et **récupérer ses métriques**.
+2. **Stocker** ces métriques dans le temps — base de données **time-series** (candidat : InfluxDB / « flux », ou autre TSDB — *décision à venir, non figée*).
+3. **Visualiser** les statistiques par **routeur** et par **service** : trafic, latence, taux d'erreur, codes HTTP, etc.
+4. **Alerter** (à terme) : seuils, notifications.
+
+### Cible de déploiement
+**Self-hosted** chez l'utilisateur final, packagé en conteneur (image Docker / `docker compose`), simple à lancer et à configurer — la facilité de déploiement est un objectif produit central.
+
+### Vocabulaire du domaine (ubiquitous language)
+| Terme | Sens dans Graefik |
+|-------|-------------------|
+| **Source** (data source) | Un reverse proxy surveillé (ex. une instance Traefik) d'où proviennent les métriques |
+| **Router** | Un routeur du reverse proxy (règle d'entrée → service) dont on affiche les stats |
+| **Service** | La cible d'un routeur (backend) |
+| **Métrique** | Une mesure horodatée (req/s, latence, code HTTP, erreurs…) |
+| **Dashboard** | Une vue agrégeant les métriques d'un ou plusieurs routeurs/services |
+| **Alerte** | Une règle déclenchant une notification quand une métrique franchit un seuil |
+
+### Comment la vision se traduit dans l'architecture
+L'hexagonal (voir [apps/api/CLAUDE.md](apps/api/CLAUDE.md)) est choisi précisément pour ce contexte :
+- La **récupération des métriques** sera un **port outbound** (ex. `MetricsSource`) avec un adaptateur Traefik — d'autres proxies pourront suivre sans toucher au cœur.
+- Le **stockage time-series** sera un autre **port outbound** (ex. `MetricsStore`) avec un adaptateur InfluxDB/TSDB — la techno de BDD reste ainsi remplaçable.
+- Le domaine (routeurs, métriques, dashboards, alertes) reste pur et indépendant du proxy comme de la BDD.
+
+> ⚠️ **État actuel** : la slice « **tasks** » présente dans le code est un **exemple d'échafaudage** qui démontre l'architecture de bout en bout. Ce n'est PAS une fonctionnalité produit — elle a vocation à être remplacée par les vraies features (sources, métriques, dashboards, alertes).
+
 ## Vue d'ensemble
 
 Graefik est un **monorepo** :
