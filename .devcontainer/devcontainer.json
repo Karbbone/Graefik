@@ -4,16 +4,29 @@
   "features": {
     "ghcr.io/devcontainers/features/go:1": { "version": "1.26" }
   },
+  "mounts": [
+    "source=graefik-dev-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
+    "source=graefik-dev-web-node-modules,target=${containerWorkspaceFolder}/apps/web/node_modules,type=volume"
+  ],
   "containerEnv": {
     "APP_ENV": "development",
-    "DB_PATH": "/workspaces/Graefik/apps/api/tmp/graefik.db"
+    "PORT": "8080",
+    "CORS_ORIGINS": "http://localhost:5173",
+    "DB_PATH": "/workspaces/${localWorkspaceFolderBasename}/apps/api/tmp/graefik.db",
+    "TURBO_UI": "stream"
   },
   "forwardPorts": [5173, 8080],
   "portsAttributes": {
-    "5173": { "label": "Frontend (Vite)" },
-    "8080": { "label": "API (Go)" }
+    "5173": {
+      "label": "Frontend (Vite)",
+      "onAutoForward": "openBrowser"
+    },
+    "8080": {
+      "label": "API (Go)"
+    }
   },
-  "postCreateCommand": "bun install && go -C apps/api mod download && (go install github.com/air-verse/air@v1.65.2 || true) && (curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b \"$(go env GOPATH)/bin\" v2.12.2 || true)",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postAttachCommand": "bash .devcontainer/start-dev.sh",
   "customizations": {
     "vscode": {
       "extensions": [

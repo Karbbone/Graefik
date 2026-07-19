@@ -1,6 +1,18 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "APP_ENV",
+    "PORT",
+    "DB_PATH",
+    "CORS_ORIGINS",
+    "DEV_ADMIN_PASSWORD",
+    "COOKIE_NAME",
+    "COOKIE_SECURE",
+    "SESSION_TTL",
+    "VITE_PROXY_TARGET",
+    "VITE_API_URL"
+  ],
   "tasks": {
     "dev": {
       "cache": false,

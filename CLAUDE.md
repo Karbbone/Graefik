@@ -100,8 +100,8 @@ L'IDE (serveur TypeScript, `gopls`) a besoin des dépendances pour résoudre les
 
 **Recommandé — Dev Container** (`.devcontainer/`) : l'IDE tourne **dans** un conteneur avec Go 1.26 + bun + les outils. Types Go **et** JS résolus sans rien installer sur la machine.
 
-- VS Code : `Ctrl+Shift+P` → **« Dev Containers: Reopen in Container »** (extension *Dev Containers* requise). Le premier lancement build l'image et lance `bun install` + `go mod download`.
-- Lancer l'app depuis le terminal du conteneur : `bun run dev:native` (Turbo lance air + Vite, ports 5173/8080 forwardés). Le front proxifie `/api` vers `localhost:8080` (même conteneur).
+- VS Code / Cursor : `Ctrl+Shift+P` → **« Dev Containers: Reopen in Container »** (extension *Dev Containers* requise). Le premier lancement build l'image, installe les dépendances, puis **démarre automatiquement** l'API et le frontend (ports 5173/8080 forwardés, navigateur ouvert sur le front).
+- Relancer manuellement si besoin : `bun run dev:native` (logs en arrière-plan : `tail -f /tmp/graefik-dev.log`).
 
 **Alternative — IDE sur l'hôte** : peupler `node_modules` (gitignoré) sans installer bun localement, puis recharger le serveur TS. Ne résout pas les types Go (il faudrait Go sur l'hôte).
 
